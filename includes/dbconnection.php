@@ -31,7 +31,6 @@ $PDO_PASS_RD = 'gW2EurIsQ6ESUnXH';
 $PDO_USER_WR = 'secsave';
 $PDO_PASS_WR = '4aCZNGdqNqMA4Pee';
 
-
 // Connect to the database with defined constants
 $pdoread = new SafePDO($PDO_DSN, $PDO_USER_RD, $PDO_PASS_RD);
 $pdosave = new SafePDO($PDO_DSN, $PDO_USER_WR, $PDO_PASS_WR);
