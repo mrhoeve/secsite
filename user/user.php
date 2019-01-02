@@ -78,4 +78,85 @@ class userHelper
         }
         return $user;
     }
+
+    public static function isUsernameValid($username)
+    {
+        return self::isUsernameLongEnough($username) && !self::isUsernameRegistrered($username);
+    }
+
+    public static function arePasswordsValid($passone, $passtwo)
+    {
+        return self::arePasswordsSimilar($passone, $passtwo) && self::calculatePasswordStrength($passone) > 70;
+    }
+
+    public static function isEmailAddressValid($emailaddress)
+    {
+        // Origin of first function: https://stackoverflow.com/questions/5855811/how-to-validate-an-email-in-php
+        $isEmailValid = filter_var($emailaddress, FILTER_VALIDATE_EMAIL) !== false;
+        $isRegistered = self::isEmailaddressRegistrered($emailaddress);
+        return $isEmailValid && !$isRegistered;
+    }
+
+    private static function calculatePasswordStrength($password)
+    {
+        $strengthScore = 0;
+        if(preg_match("/[a-zA-Z0-9][a-zA-Z0-9]+/", $password))
+        {
+            $strengthScore += 10;
+        }
+        if(preg_match("/[~<>?]+/", $password))
+        {
+            $strengthScore += 15;
+        }
+        if(preg_match("/[!@#$%^&*()]+/", $password))
+        {
+            $strengthScore += 15;
+        }
+        if(strlen($password) > 8)
+        {
+            $lengthScore = (strlen($password) - 8) * 5;
+            if($lengthScore > 60) { $lengthScore = 60; }
+            $strengthScore += $lengthScore;
+        }
+        return $strengthScore;
+    }
+
+    private static function arePasswordsSimilar($passone, $passtwo)
+    {
+        return $passone === $passtwo;
+    }
+
+    private static function isUsernameLongEnough($username)
+    {
+        // Origin regex: https://stackoverflow.com/questions/4383878/php-username-validation
+        return preg_match('/^\w{5,}$/', $username) === 1 ? true : false;
+    }
+
+    private static function isEmailaddressRegistrered($emailaddress)
+    {
+        global $pdoread;
+
+        // Prepare our SQL
+        if ($stmt = $pdoread->prepare('select u.email from user u where email = :email')) {
+            $stmt->bindParam(':email', $emailaddress);
+            $stmt->execute();
+            return $stmt->rowCount() === 1 ? true : false;
+        } else {
+            die('Internal error setting up the database connection');
+        }
+    }
+
+    private static function isUsernameRegistrered($username)
+    {
+        global $pdoread;
+
+        // Prepare our SQL
+        if ($stmt = $pdoread->prepare('select u.userid from user u where userid = :userid')) {
+            $stmt->bindParam(':userid', $username);
+            $stmt->execute();
+            return $stmt->rowCount() === 1;
+        } else {
+            die('Internal error setting up the database connection');
+        }
+    }
 }
