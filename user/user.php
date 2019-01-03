@@ -25,6 +25,10 @@ class user
         $this->userid = $userid;
         $this->firstName = $firstName;
         $this->email = $email;
+        if(!$role)
+        {
+            $role="Normal user";
+        }
         $this->role = $role;
         $this->permission = $permission;
         $this->disabled = $disabled;
@@ -40,12 +44,44 @@ class user
         return $this->firstName;
     }
 
+    public function get_email()
+    {
+        return $this->email;
+    }
+
+    public function get_role()
+    {
+        return $this->role;
+    }
+
+    public function get_disabled()
+    {
+        return $this->disabled;
+    }
+
+    public function hasPermission($wantedPermission)
+    {
+        return in_array($wantedPermission, $this->permission);
+    }
+
 }
 
 class userHelper
 {
 
-    public static function loadUser($userid, $password)
+    // Load and authenticate a user
+
+    public static function loadUser($userid)
+    {
+        return self::loadAndAuthenticateUser($userid);
+    }
+
+    public static function authenticateUser($userid, $password)
+    {
+        return self::loadAndAuthenticateUser($userid, $password, true);
+    }
+
+    private static function loadAndAuthenticateUser($userid, $password = "", $performAuthentication = false)
     {
         global $pdoread;
 
@@ -61,14 +97,22 @@ class userHelper
             $stmt->execute();
             if ($stmt->rowCount() === 1) {
                 $result = $stmt->fetch();
-                // Account exists, now we verify the password.
-                if (password_verify($password, $result['password'])) {
-                    $user = new user($result['userid'], $result['firstName'], $result['email'], $result['role'], explode(',', $result['permission']), $result['disabled']);
-                    // Verification success! user has loggedin!
-                    $_SESSION['loggedin'] = TRUE;
-                    $_SESSION['user'] = serialize($user);
-                } else {
-                    $user = new user('','','',[],array(), '');
+                // Account exists, save it to user $user
+                $user = new user($result['userid'], $result['firstName'], $result['email'], $result['role'], explode(',', $result['permission']), $result['disabled']);
+                // Do we have to perform the authentication? Then verify the password.
+                if($performAuthentication===true) {
+                    if (password_verify($password, $result['password'])) {
+                        // Authentication success! user has loggedin!
+                        // Save the user to the session
+                        $_SESSION['loggedin'] = TRUE;
+                        $_SESSION['user'] = serialize($user);
+                    } else {
+                        // Authentication failed, make sure to return an empty user en clear the session
+                        $user = new user('', '', '', [], array(), '');
+                        session_destroy();
+                        $_SESSION['loggedin'] = FALSE;
+                        $_SESSION['user'] = serialize($user);
+                    }
                 }
             } else {
                 $user = new user('','','',[],array(), '');
@@ -78,6 +122,8 @@ class userHelper
         }
         return $user;
     }
+
+    // Validate user information
 
     public static function isUsernameValid($username)
     {
@@ -157,6 +203,61 @@ class userHelper
             return $stmt->rowCount() === 1;
         } else {
             die('Internal error setting up the database connection');
+        }
+    }
+
+    // Save a user
+    public static function saveUser($user, $password="", $update=true)
+    {
+        global $pdosave;
+        if($user instanceof user)
+        {
+            // Check if we have a valid save connection
+            if (!isset($pdosave)) {
+                die('Failed to setup a database connection');
+            }
+            // Check if a password has been provided when a new account is being created
+            if(!$update && !$password)
+            {
+                die("Not all requirements to save the user information has been met.");
+            }
+            if($update)
+            {
+                if($password)
+                {
+                    $sqlstmt = 'update user set firstName = :firstName, password = :password, email = :email, role = :role, disabled = :disabled where userid = :userid';
+                } else {
+                    $sqlstmt = 'update user set firstName = :firstName, email = :email, role = :role, disabled = :disabled where userid = :userid';
+                }
+                // Prepare our SQL
+                if ($stmt = $pdosave->prepare($sqlstmt)) {
+                    // The db fields role and disabled are not being set because we want the defaults for those fields.
+                    $stmt->bindValue(':userid', $user->get_userid());
+                    $stmt->bindValue(':firstName', $user->get_firstName());
+                    if($password)
+                    {
+                        $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
+                    }
+                    $stmt->bindValue(':emailaddress', $user->get_email());
+                    $stmt->bindValue(':role', $user->get_role());
+                    $stmt->bindValue(':disabled', $user->get_disabled());
+                    $stmt->execute();
+                } else {
+                    die('Internal error setting up the database connection');
+                }
+            } else {
+                // Prepare our SQL
+                if ($stmt = $pdosave->prepare('insert into user (userid, firstName, password, email) values (:userid, :firstName, :password, :emailaddress)')) {
+                    // The db fields role and disabled are not being set because we want the defaults for those fields.
+                    $stmt->bindValue(':userid', $user->get_userid());
+                    $stmt->bindValue(':firstName', $user->get_firstName());
+                    $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
+                    $stmt->bindValue(':emailaddress', $user->get_email());
+                    $stmt->execute();
+                } else {
+                    die('Internal error setting up the database connection');
+                }
+            }
         }
     }
 }
