@@ -21,7 +21,10 @@ Class SafePDO extends PDO {
 
 }
 
-$PDO_DSN = "mysql:host=localhost;dbname=security";
+$mysql_host = "localhost";
+$mysql_database = "security";
+
+$PDO_DSN = "mysql:host=$mysql_host;dbname=$mysql_database";
 
 // Credentials for read access
 $PDO_USER_RD = 'secread';
@@ -34,4 +37,4 @@ $PDO_PASS_WR = '4aCZNGdqNqMA4Pee';
 // Connect to the database with defined constants
 $pdoread = new SafePDO($PDO_DSN, $PDO_USER_RD, $PDO_PASS_RD);
 $pdosave = new SafePDO($PDO_DSN, $PDO_USER_WR, $PDO_PASS_WR);
-?>
+

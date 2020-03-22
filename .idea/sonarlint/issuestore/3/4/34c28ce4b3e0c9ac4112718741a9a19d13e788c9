@@ -1,0 +1,11 @@
+
+	php:S1192y"rDefine a constant instead of duplicating this literal "Internal error setting up the database connection" 5 times.(²¨èé8ªÈ¢-
+hphp:S101"HRename class "user" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.(å©¿’úÿÿÿÿ8µõÓöÿ,
+K	php:S1125²")Remove the literal "false" boolean value.(»ÈóÛûÿÿÿÿ8Úâ’…-
+J	php:S1125²"(Remove the literal "true" boolean value.(»ÈóÛûÿÿÿÿ8Úâ’…-
+d	php:S1192X"IDefine a constant instead of duplicating this literal "loggedin" 3 times.(í¦à8ªÈ¢-
+i	php:S1192`"HDefine a constant instead of duplicating this literal ":userid" 4 times.(êÕ–ªùÿÿÿÿ8«Ÿ•«-
+K	php:S1125½")Remove the literal "false" boolean value.(š²Ôâıÿÿÿÿ8Üæë…-
+J	php:S1125½"(Remove the literal "true" boolean value.(š²Ôâıÿÿÿÿ8Üæë…-
+nphp:S101E"NRename class "userHelper" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.(òö¢…øÿÿÿÿ8Ò©Ööÿ,
+v	php:S3776Ò"TRefactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed.(õ³úŠüÿÿÿÿ8÷¾½¬-
