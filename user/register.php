@@ -1,7 +1,7 @@
 <?php
 session_start();
 include_once "../includes/dbconnection.php";
-include_once "user.php";
+include_once "User.php";
 ?>
 
 <!DOCTYPE html>
@@ -29,9 +29,9 @@ include_once "user.php";
         $passone = isset($_POST['password']) ? $_POST['password'] : '';
         $passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
 
-        $emailaddressValid = userHelper::isEmailAddressValid($emailaddress);
-        $passwordsValid = userHelper::arePasswordsValid($passone, $passtwo);
-        $usernameValid = userHelper::isUsernameValid($username);
+        $emailaddressValid = UserHelper::isEmailAddressValid($emailaddress);
+        $passwordsValid = UserHelper::arePasswordsValid($passone, $passtwo);
+        $usernameValid = UserHelper::isUsernameValid($username);
         $showForm = !($emailaddressValid && $passwordsValid && $usernameValid);
         if ($showForm === true) {
             $errMessage = 'ERROR: Either the data entered doesn\'t fullfill the requirements, or the username and/or email already have been taken.';
@@ -62,8 +62,8 @@ include_once "user.php";
         </ul>
         <?php
     } else {
-        $newuser = new user($username, $firstname, $emailaddress, null, array(), false);
-        userHelper::saveUser($newuser, $passone, false);
+        $newuser = new User($username, $firstname, $emailaddress, null, array(), false);
+        UserHelper::saveUser($newuser, $passone, false);
         echo "User $username is created. You can now login.";
     } ?>
 </div>
