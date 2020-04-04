@@ -1,3 +1,10 @@
+<?php
+if(!defined('LEVEL')) {
+    die("LEVEL not defined");
+}
+include_once(dirname(__FILE__) . "./dbconnection.php");
+include_once(dirname(__FILE__) . "/../user/User.php");
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,11 +16,18 @@
           integrity="sha384-REHJTs1r2ErKBuJB0fCK99gCYsVjwxHrSU0N7I1zl9vZbggVJXRMsv/sLlOAGb4M" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="../css/style.css">
-    <title>Bootstrap Theme</title>
+    <link rel="stylesheet" href="<?php echo LEVEL ?>css/style.css">
+    <title>SomeSite</title>
 </head>
 
 <body data-target="#main-nav" id="home">
+<?php
+$user = null;
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user === null) {
+    $user = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
+}
+?>
+
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top" id="main-nav">
     <div class="container">
         <a href="index.html" class="navbar-brand">SomeSite</a>
@@ -25,12 +39,16 @@
                 <li class="nav-item">
                     <a href="#home" class="nav-link">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a href="#explore-head-section" class="nav-link">Explore</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#create-head-section" class="nav-link">Create</a>
-                </li>
+                <?php if ($user != null && ($user->hasPermission(PERMISSION_RESET_TOTP))) { ?>
+                    <li class="nav-item">
+                        <a href="#explore-head-section" class="nav-link">OTP Admin</a>
+                    </li>
+                <?php } ?>
+                <?php if ($user != null && ($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_CREATE_ACCOUNT) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT))) { ?>
+                    <li class="nav-item">
+                        <a href="#create-head-section" class="nav-link">Accounts</a>
+                    </li>
+                <?php } ?>
                 <li class="nav-item">
                     <a href="#share-head-section" class="nav-link">Share</a>
                 </li>
@@ -39,28 +57,3 @@
     </div>
 </nav>
 
-<!--<div class="form">-->
-<!--    <h1>Login Form</h1>-->
-<!--    <form action="authenticate.php" method="post">-->
-<!--        <input type="text" name="username" placeholder="Username">-->
-<!--        <input type="password" name="password" id="password" autocomplete="none" placeholder="Password">-->
-<!--        <input type="submit">-->
-<!--    </form>-->
-<!--</div>-->
-<script
-        src="http://code.jquery.com/jquery-3.4.1.min.js"
-        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-        crossorigin="anonymous"
-></script>
-<script
-        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"
-></script>
-<script
-        src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"
-></script>
-</body>
-</html>

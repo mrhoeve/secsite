@@ -1,16 +1,10 @@
 <?php
-session_start();
-include_once "../includes/dbconnection.php";
-include_once "User.php";
+include_once(dirname(__FILE__) . "/../includes/definitions.php");
+setLevelToRoot("..");
+include_once(dirname(__FILE__) . "/../user/User.php");
 
-if (!isset($_POST['username'], $_POST['password'])) {
-    // Could not get the data that should have been sent.
-    die ('Username and/or password does not exist!');
+$user = null;
+if (isset($_POST['username']) || isset($_POST['password'])) {
+    UserHelper::authenticateAndLoginUser($_POST['username'], $_POST['password']);
 }
-$user = UserHelper::authenticateAndLoginUser($_POST['username'], $_POST['password']);
-if($_SESSION['loggedin'] === TRUE) {
-    echo "Welcome " . $user->get_firstName();
-} else {
-    echo 'Unknown username and/or password';
-}
-?>
+header('Location: ..\index.php');

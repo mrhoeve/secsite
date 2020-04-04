@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `security`.`User` (
   `role` VARCHAR(50) NULL,
   `changepwonl` TINYINT NULL,
   `disabled` TINYINT NULL,
+  `timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`username`),
   UNIQUE INDEX `userid_UNIQUE` (`username` ASC),
   INDEX `FK_USER_ROLE_idx` (`role` ASC),
@@ -105,10 +106,10 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `security`;
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`) VALUES ('admin', 'WelcomeAdmin01', 'Administrator', 'admin@voorbeeld.local', 'Administrator', 1, 0);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`) VALUES ('helpdesk', 'WelcomeHelpdesk01', 'Helpdesk', 'helpdesk@voorbeeld.local', 'Helpdesk', 1, 0);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`) VALUES ('user', 'WelcomeUser01', 'User', 'user@voorbeeld.local', NULL, 1, 0);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`) VALUES ('disableduser', 'WelcomeDisabledUser01', 'Disabled User', 'disableduser@voorbeeld.local', NULL, 1, 1);
+INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('admin', 'WelcomeAdmin01', 'Administrator', 'admin@voorbeeld.local', 'Administrator', 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('helpdesk', 'WelcomeHelpdesk01', 'Helpdesk', 'helpdesk@voorbeeld.local', 'Helpdesk', 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('user', 'WelcomeUser01', 'User', 'user@voorbeeld.local', NULL, 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('disableduser', 'WelcomeDisabledUser01', 'Disabled User', 'disableduser@voorbeeld.local', NULL, 1, 1, NULL);
 
 COMMIT;
 

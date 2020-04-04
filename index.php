@@ -1,15 +1,23 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * user: mrhoe
- * Date: 28-12-2018
- * Time: 14:12
- */
+include_once "includes/definitions.php";
+setLevelToRoot(".");
+include_once(dirname(__FILE__) .  "/includes/BodyAndHeader.php");
 
-$wachtwoord = '$2y$10$mwI9w92f5Cez1d7C0iy7Ju9pQruBJiYmb9G3IKcWh4DyuIzwyFeKa';
-echo password_hash("M@rt1n@1801", PASSWORD_BCRYPT);
-if(password_verify("Welkom@01", $wachtwoord ) == true) {
-    echo "De wachtwoorden zijn gelijk";
-} else {
-    echo "Verschillende wachtwoorden!";
+if($_SESSION['loggedin'] === TRUE) {
+    echo "Welcome " . $user->get_firstName();
+} else { ?>
+
+    <div class="form">
+        <h1>Login Form</h1>
+        <form action="user/authenticate.php" method="post">
+            <input type="text" name="username" placeholder="Username">
+            <input type="password" name="password" id="password" autocomplete="none" placeholder="Password">
+            <input type="submit">
+        </form>
+    </div>
+
+
+    <?php
 }
+include_once "includes/Footer.php";
+?>

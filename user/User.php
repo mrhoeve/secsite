@@ -1,6 +1,6 @@
 <?php
-include_once "../includes/dbconnection.php";
-include_once "../includes/definitions.php";
+include_once(dirname(__FILE__) . "/../includes/dbconnection.php");
+include_once(dirname(__FILE__) . "/../includes/definitions.php");
 
 class User
 {
@@ -11,6 +11,7 @@ class User
     private $permission = array();
     private $changepwonl;
     private $disabled;
+    private $timestamp;
 
     /**
      * user constructor.
@@ -21,8 +22,9 @@ class User
      * @param array $permission
      * @param $changepwonl
      * @param $disabled
+     * @param $timestamp
      */
-    public function __construct($username, $firstName, $email, $role, array $permission, $changepwonl, $disabled)
+    public function __construct($username, $firstName, $email, $role, array $permission, $changepwonl, $disabled, $timestamp)
     {
         $this->username = $username;
         $this->firstName = $firstName;
@@ -34,6 +36,7 @@ class User
         $this->permission = $permission;
         $this->changepwonl = boolval($changepwonl);
         $this->disabled = boolval($disabled);
+        $this->timestamp = $timestamp;
 
         debugToConsole("User class initialized user: \n" . $this->toString());
     }
@@ -78,6 +81,11 @@ class User
         return $this->disabled;
     }
 
+    public function get_timestamp()
+    {
+        return $this->timestamp;
+    }
+
     public function hasPermission($wantedPermission)
     {
         return in_array($wantedPermission, $this->permission);
@@ -91,8 +99,42 @@ class User
         $toString .= "Role = $this->role \n";
         $toString .= "Permissions: " . implode(" | ", $this->permission) . "\n";
         $toString .= "Must change password at next logon: " . ($this->mustChangePasswordOnNextLogon() ? 'true' : 'false') . "\n";
-        return $toString . "Account is disabled: " . ($this->isDisabled() ? 'true' : 'false') . "\n";
+        $toString .= "Account is disabled: " . ($this->isDisabled() ? 'true' : 'false') . "\n";
+        return $toString . "Timestamp: " . $this->timestamp . "\n";
     }
+
+//    public function serialize() {
+//        return serialize(
+//            array(
+//                'username' => $this->username,
+//                'firstname' => $this->firstName,
+//                'email' => $this->email,
+//                'role' => $this->role,
+//                'timestamp' => $this->timestamp,
+//                'permissions' => implode(",", $this->permission)
+//            )
+//        );
+//    }
+//
+//    public function unserialize($data) {
+//        $data = unserialize($data);
+//        $this->username = $data['username'];
+//        $this->timestamp = $data['timestamp'];
+//
+//        if(UserHelper::validTimestamp($this)) {
+//            $this->firstName = $data['firstname'];
+//            $this->email = $data['email'];
+//            $this->role = $data['role'];
+//            $this->timestamp = $data['timestamp'];
+//            $this->disabled = false;
+//            $this->changepwonl = false;
+//            $this->permission = explode(',', $data['permissions']);
+//        } else {
+//            $this->username='';
+//            $this->timestamp='';
+//            $_SESSION[SESSION_LOGGEDIN] = false;
+//        }
+//    }
 }
 
 class UserHelper
@@ -130,20 +172,20 @@ class UserHelper
         }
 
         // Prepare our SQL
-        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission from user u join rolepermission rp on rp.role=u.role where username = :username')) {
+        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u join rolepermission rp on rp.role=u.role where username = :username')) {
             $stmt->bindParam(':username', $username);
             $stmt->execute();
             if ($stmt->rowCount() === 1) {
                 debugToConsole("Match found in database with username \"$username\"");
                 $result = $stmt->fetch();
                 // Account exists, save it to user $user
-                $user = new User($result['username'], $result['firstName'], $result['email'], $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled']);
+                $user = new User($result['username'], $result['firstName'], $result['email'], $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
                 // Do we have to perform the authentication? Then verify the password.
                 if ($performAuthentication === true) {
                     $user = self::authenticateUser($user, $password, $result['password'], $loginInSession);
                 }
             } else {
-                $user = new User('', '', '', '', array(), '', '');
+                $user = new User('', '', '', '', array(), '', '', '');
             }
         } else {
             die('Internal error setting up the database connection');
@@ -161,17 +203,17 @@ class UserHelper
                 // Authentication success! user has loggedin!
                 // Save the user to the session
                 $_SESSION[SESSION_LOGGEDIN] = TRUE;
-                $_SESSION[SESSION_USERNAME] = serialize($user);
+                $_SESSION[SESSION_USER] = serialize($user);
             }
         } else {
             debugToConsole("Password doesn't match the stored password, destroy the session");
             // Authentication failed, make sure to return an empty user
-            $user = new User('', '', '', '', array(), '', '');
+            $user = new User('', '', '', '', array(), '', '', '');
             if ($loginInSession) {
                 // If logging in in the session was required, then destroy the session due to failed login attempt
+                session_unset();
                 session_destroy();
                 $_SESSION[SESSION_LOGGEDIN] = FALSE;
-                $_SESSION[SESSION_USERNAME] = serialize($user);
             }
         }
         return $user;
@@ -276,7 +318,8 @@ class UserHelper
         }
     }
 
-    private static function saveExistingUser(User $user, $password) {
+    private static function saveExistingUser(User $user, $password)
+    {
         global $pdosave;
 
         if ($password) {
@@ -301,7 +344,8 @@ class UserHelper
         }
     }
 
-    private static function saveNewUser(User $user, $password) {
+    private static function saveNewUser(User $user, $password)
+    {
         global $pdosave;
         // Prepare our SQL
         if ($stmt = $pdosave->prepare('insert into user (username, firstName, password, email, changepwonl) values (:username, :firstName, :password, :emailaddress, :changepwonl)')) {
@@ -315,5 +359,33 @@ class UserHelper
         } else {
             die('Internal error setting up the database connection');
         }
+    }
+
+    public static function validateUserAndTimestamp(User $user)
+    {
+        global $pdoread;
+        $username = $user->get_username();
+
+
+        // Prepare our SQL
+        if ($stmt = $pdoread->prepare('select u.timestamp from user u where username = :username')) {
+            $stmt->bindParam(':username', $username);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            if ($user->get_timestamp() != $result['timestamp']) {
+                debugToConsole("Validating user \"$username\" - Invalid timestamp, clearing user");
+                session_unset();
+                session_destroy();
+                $_SESSION[SESSION_LOGGEDIN] = FALSE;
+                $user = null;
+            }
+            if($user != null) {
+                debugToConsole("Validating user \"$username\" - OK");
+            }
+            return $user;
+        } else {
+            return false;
+        }
+
     }
 }
