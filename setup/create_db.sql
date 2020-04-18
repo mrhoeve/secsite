@@ -34,6 +34,7 @@ DROP TABLE IF EXISTS `security`.`User` ;
 CREATE TABLE IF NOT EXISTS `security`.`User` (
   `username` VARCHAR(50) NOT NULL,
   `password` VARCHAR(80) NULL,
+  `fasecret` VARCHAR(32) NULL,
   `firstname` VARCHAR(50) NOT NULL,
   `email` NVARCHAR(254) NULL,
   `role` VARCHAR(50) NULL,
@@ -106,10 +107,10 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `security`;
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('admin', 'WelcomeAdmin01', 'Administrator', 'admin@voorbeeld.local', 'Administrator', 1, 0, NULL);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('helpdesk', 'WelcomeHelpdesk01', 'Helpdesk', 'helpdesk@voorbeeld.local', 'Helpdesk', 1, 0, NULL);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('user', 'WelcomeUser01', 'User', 'user@voorbeeld.local', NULL, 1, 0, NULL);
-INSERT INTO `security`.`User` (`username`, `password`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('disableduser', 'WelcomeDisabledUser01', 'Disabled User', 'disableduser@voorbeeld.local', NULL, 1, 1, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('admin', 'WelcomeAdmin01', NULL, 'Administrator', 'admin@voorbeeld.local', 'Administrator', 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('helpdesk', 'WelcomeHelpdesk01', NULL, 'Helpdesk', 'helpdesk@voorbeeld.local', 'Helpdesk', 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('user', 'WelcomeUser01', NULL, 'User', 'user@voorbeeld.local', NULL, 1, 0, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('disableduser', 'WelcomeDisabledUser01', NULL, 'Disabled User', 'disableduser@voorbeeld.local', NULL, 1, 1, NULL);
 
 COMMIT;
 

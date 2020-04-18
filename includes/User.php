@@ -1,12 +1,14 @@
 <?php
-include_once(dirname(__FILE__) . "/../includes/dbconnection.php");
-include_once(dirname(__FILE__) . "/../includes/definitions.php");
+include_once(dirname(__FILE__) . "/dbconnection.php");
+include_once(dirname(__FILE__) . "/definitions.php");
+include_once(dirname(__FILE__) . "/GoogleAuthenticator.php");
 
 class User
 {
     private $username;
     private $firstName;
     private $email;
+    private $has2fa;
     private $role;
     private $permission = array();
     private $changepwonl;
@@ -18,17 +20,19 @@ class User
      * @param $username
      * @param $firstName
      * @param $email
+     * @param $has2fa
      * @param $role
      * @param array $permission
      * @param $changepwonl
      * @param $disabled
      * @param $timestamp
      */
-    public function __construct($username, $firstName, $email, $role, array $permission, $changepwonl, $disabled, $timestamp)
+    public function __construct($username, $firstName, $email, $has2fa, $role, array $permission, $changepwonl, $disabled, $timestamp)
     {
         $this->username = $username;
         $this->firstName = $firstName;
         $this->email = $email;
+        $this->has2fa = $has2fa;
         if (!$role) {
             $role = "Normal user";
         }
@@ -54,6 +58,15 @@ class User
     public function get_email()
     {
         return $this->email;
+    }
+
+    public function has2fa()
+    {
+        return $this->has2fa;
+    }
+
+    public function set_has2fa($hasIt) {
+        $this->has2fa = $hasIt;
     }
 
     public function get_role()
@@ -96,6 +109,7 @@ class User
         $toString = "Username = $this->username \n";
         $toString .= "First name = $this->firstName \n";
         $toString .= "Email = $this->email \n";
+        $toString .= "Has 2FA: " . ($this->has2fa ? 'true' : 'false') . "\n";
         $toString .= "Role = $this->role \n";
         $toString .= "Permissions: " . implode(" | ", $this->permission) . "\n";
         $toString .= "Must change password at next logon: " . ($this->mustChangePasswordOnNextLogon() ? 'true' : 'false') . "\n";
@@ -103,38 +117,6 @@ class User
         return $toString . "Timestamp: " . $this->timestamp . "\n";
     }
 
-//    public function serialize() {
-//        return serialize(
-//            array(
-//                'username' => $this->username,
-//                'firstname' => $this->firstName,
-//                'email' => $this->email,
-//                'role' => $this->role,
-//                'timestamp' => $this->timestamp,
-//                'permissions' => implode(",", $this->permission)
-//            )
-//        );
-//    }
-//
-//    public function unserialize($data) {
-//        $data = unserialize($data);
-//        $this->username = $data['username'];
-//        $this->timestamp = $data['timestamp'];
-//
-//        if(UserHelper::validTimestamp($this)) {
-//            $this->firstName = $data['firstname'];
-//            $this->email = $data['email'];
-//            $this->role = $data['role'];
-//            $this->timestamp = $data['timestamp'];
-//            $this->disabled = false;
-//            $this->changepwonl = false;
-//            $this->permission = explode(',', $data['permissions']);
-//        } else {
-//            $this->username='';
-//            $this->timestamp='';
-//            $_SESSION[SESSION_LOGGEDIN] = false;
-//        }
-//    }
 }
 
 class UserHelper
@@ -147,17 +129,17 @@ class UserHelper
         return self::loadAndAuthenticateUser($username);
     }
 
-    public static function authenticateUserWithoutLoggingIn($username, $password)
+    public static function authenticateUserWithoutLoggingIn($username, $password, $facode)
     {
-        return self::loadAndAuthenticateUser($username, $password, true, false);
+        return self::loadAndAuthenticateUser($username, $password, $facode, true, false);
     }
 
-    public static function authenticateAndLoginUser($username, $password)
+    public static function authenticateAndLoginUser($username, $password, $facode)
     {
-        return self::loadAndAuthenticateUser($username, $password, true, true);
+        return self::loadAndAuthenticateUser($username, $password, $facode, true, true);
     }
 
-    private static function loadAndAuthenticateUser($username, $password = "", $performAuthentication = false, $loginInSession = false)
+    private static function loadAndAuthenticateUser($username, $password = "", $facode = "", $performAuthentication = false, $loginInSession = false)
     {
         global $pdoread;
 
@@ -172,20 +154,20 @@ class UserHelper
         }
 
         // Prepare our SQL
-        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u join rolepermission rp on rp.role=u.role where username = :username')) {
+        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.fasecret, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u join rolepermission rp on rp.role=u.role where username = :username')) {
             $stmt->bindParam(':username', $username);
             $stmt->execute();
             if ($stmt->rowCount() === 1) {
                 debugToConsole("Match found in database with username \"$username\"");
                 $result = $stmt->fetch();
                 // Account exists, save it to user $user
-                $user = new User($result['username'], $result['firstName'], $result['email'], $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
+                $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
                 // Do we have to perform the authentication? Then verify the password.
                 if ($performAuthentication === true) {
-                    $user = self::authenticateUser($user, $password, $result['password'], $loginInSession);
+                    $user = self::authenticateUser($user, $password, $result['password'], $facode, $result['fasecret'], $loginInSession);
                 }
             } else {
-                $user = new User('', '', '', '', array(), '', '', '');
+                $user = new User('', '', '', false, '', array(), false, false, '');
             }
         } else {
             die('Internal error setting up the database connection');
@@ -193,11 +175,11 @@ class UserHelper
         return $user;
     }
 
-    private static function authenticateUser($user, $password, $hashedPassword, $loginInSession)
+    private static function authenticateUser($user, $password, $hashedPassword, $facode, $fasecret, $loginInSession)
     {
         debugToConsole("Authentication requested");
-        if (password_verify($password, $hashedPassword)) {
-            debugToConsole("Password matches with the stored password");
+        if (password_verify($password, $hashedPassword) && self::validFaCode($facode, $fasecret)) {
+            debugToConsole("Password and 2FA matches with the stored credentials");
             if ($loginInSession) {
                 debugToConsole("Logging in in the session, as requested");
                 // Authentication success! user has loggedin!
@@ -206,9 +188,9 @@ class UserHelper
                 $_SESSION[SESSION_USER] = serialize($user);
             }
         } else {
-            debugToConsole("Password doesn't match the stored password, destroy the session");
+            debugToConsole("Password and/or 2FA don't match the stored credentials, destroy the session");
             // Authentication failed, make sure to return an empty user
-            $user = new User('', '', '', '', array(), '', '', '');
+            $user = new User('', '', '', false,'', array(), false, false, '');
             if ($loginInSession) {
                 // If logging in in the session was required, then destroy the session due to failed login attempt
                 session_unset();
@@ -217,6 +199,18 @@ class UserHelper
             }
         }
         return $user;
+    }
+
+    public static function validFaCode($facode, $fasecret)
+    {
+        if ($fasecret == null) {
+            // There's no secret for this user. In that case the code must also be empty for this method to return true
+            return empty($facode);
+        }
+        // Perform a few basic checks, if one of these fail it certainly isn't a valid code
+        if (empty($facode) || strlen($facode) != 6 || !is_numeric($facode)) return false;
+        $ga = new PHPGangsta_GoogleAuthenticator();
+        return $ga->verifyCode($fasecret, $facode, 1);
     }
 
     // Validate user information
@@ -361,6 +355,24 @@ class UserHelper
         }
     }
 
+    public static function save2FASecret(User $user, $fasecret)
+    {
+        global $pdosave;
+        $isCurrentUser = ($user->get_username() === UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']))->get_username());
+        // Prepare our SQL
+        if ($stmt = $pdosave->prepare('update user set fasecret=:fasecret where username = :username')) {
+            $stmt->bindValue(':username', $user->get_username());
+            $stmt->bindValue(':fasecret', $fasecret);
+            $stmt->execute();
+            if($isCurrentUser) {
+                // Update the current user (we're working with timestamps for validation, and that's changed)
+                $_SESSION[SESSION_USER] = serialize(self::loadUser($user->get_username()));
+            }
+        } else {
+            die('Internal error setting up the database connection');
+        }
+    }
+
     public static function validateUserAndTimestamp(User $user)
     {
         global $pdoread;
@@ -379,7 +391,7 @@ class UserHelper
                 $_SESSION[SESSION_LOGGEDIN] = FALSE;
                 $user = null;
             }
-            if($user != null) {
+            if ($user != null) {
                 debugToConsole("Validating user \"$username\" - OK");
             }
             return $user;
