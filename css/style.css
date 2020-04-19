@@ -1,3 +1,5 @@
+@import "progress.css";
+
 body {
     background: #fff;
     color: black;
@@ -33,3 +35,8 @@ body {
 
 .about-img {
     margin-top: -50px; }
+
+.tooltip-inner {
+    max-width: 380px;
+    width: 380px;
+}

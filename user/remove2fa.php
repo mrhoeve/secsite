@@ -1,7 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
 setLevelToRoot("..");
-include_once(dirname(__FILE__) . "/../includes/Header.php");
+include_once(dirname(__FILE__) . "/../includes/header.php");
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false) {
     header('Location: ..\index.php');
@@ -74,5 +74,5 @@ if (isset($_POST['username'])) {
 </section>
 
 <?php
-include_once(dirname(__FILE__) . "/../includes/Footer.php");
+include_once(dirname(__FILE__) . "/../includes/footer.php");
 ?>

@@ -1,7 +1,7 @@
 <?php
 include_once "includes/definitions.php";
 setLevelToRoot(".");
-include_once(dirname(__FILE__) . "/includes/Header.php");
+include_once(dirname(__FILE__) . "/includes/header.php");
 ?>
 <!-- PAGE HEADER -->
 <header id="page-header">
@@ -39,5 +39,5 @@ include_once(dirname(__FILE__) . "/includes/Header.php");
     </div>
 </section>
 <?php
-include_once "includes/Footer.php";
+include_once "includes/footer.php";
 ?>

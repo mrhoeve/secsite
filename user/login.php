@@ -18,7 +18,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     }
 
     setLevelToRoot("..");
-    include_once(dirname(__FILE__) . "/../includes/Header.php");
+    include_once(dirname(__FILE__) . "/../includes/header.php");
 
     ?>
     <section id="login">
@@ -65,31 +65,31 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
         </div>
     </section>
 
-<?php if (!$freshStart && !$error) { ?>
-    <script type="text/javascript">
-
-        // Total seconds to wait
-        var seconds = 3;
-
-        function countdown() {
-            seconds = seconds - 1;
-            if (seconds < 0) {
-                // Chnage your redirection link here
-                window.location = "<?php echo LEVEL ?>index.php";
-            } else {
-                // Update remaining seconds
-                document.getElementById("countdown").innerHTML = "(" + seconds + "...)";
-                // Count down using javascript
-                window.setTimeout("countdown()", 1000);
-            }
-        }
-
-        // Run countdown function
-        countdown();
-
-    </script>
     <?php
+    include_once(dirname(__FILE__) . "/../includes/jsscripts.php");
+    if (!$freshStart && !$error) { ?>
+        <script type="text/javascript">
+
+            var seconds = 3;
+
+            function countdown() {
+                seconds = seconds - 1;
+                if (seconds < 0) {
+                    window.location = "<?php echo LEVEL ?>index.php";
+                } else {
+                    // Update remaining seconds
+                    document.getElementById("countdown").innerHTML = "(" + seconds + "...)";
+                    // Count down using javascript
+                    window.setTimeout("countdown()", 1000);
+                }
+            }
+
+            // Run countdown function
+            countdown();
+
+        </script>
+        <?php
     }
 }
-include_once(dirname(__FILE__) . "/../includes/Footer.php");
+include_once(dirname(__FILE__) . "/../includes/footer.php");
 ?>

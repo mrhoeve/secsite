@@ -203,3 +203,7 @@ p[data-value]:after {
             -webkit-linear-gradient( left, #FFBF00, #58FA58);
 
 }
+
+.progress-form-group {
+    height: 15px;
+}

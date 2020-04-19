@@ -37,7 +37,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user === 
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a href="#home" class="nav-link">Home</a>
+                    <a href="<?php echo LEVEL ?>index.php" class="nav-link">Home</a>
                 </li>
                 <?php if ($user != null && ($user->hasPermission(PERMISSION_RESET_TOTP))) { ?>
                     <li class="nav-item">

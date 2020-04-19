@@ -154,7 +154,7 @@ class UserHelper
         }
 
         // Prepare our SQL
-        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.fasecret, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u join rolepermission rp on rp.role=u.role where username = :username')) {
+        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.fasecret, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u left join rolepermission rp on rp.role=u.role where username = :username')) {
             $stmt->bindParam(':username', $username);
             $stmt->execute();
             if ($stmt->rowCount() === 1) {
@@ -217,7 +217,7 @@ class UserHelper
 
     public static function isUsernameValid($username)
     {
-        return self::isUsernameLongEnough($username) && !self::isUsernameRegistrered($username);
+        return !empty($username) && self::isUsernameLongEnough($username) && !self::isUsernameRegistrered($username);
     }
 
     public static function arePasswordsValid($passone, $passtwo)
@@ -230,7 +230,7 @@ class UserHelper
         // Origin of first function: https://stackoverflow.com/questions/5855811/how-to-validate-an-email-in-php
         $isEmailValid = filter_var($emailaddress, FILTER_VALIDATE_EMAIL) !== false;
         $isRegistered = self::isEmailaddressRegistrered($emailaddress);
-        return $isEmailValid && !$isRegistered;
+        return !empty($emailaddress) && $isEmailValid && !$isRegistered;
     }
 
     private static function calculatePasswordStrength($password)
@@ -297,6 +297,7 @@ class UserHelper
     // Save a user
     public static function saveUser(User $user, $password = "", $update = true)
     {
+        global $pdosave;
         // Check if we have a valid save connection
         if (!isset($pdosave)) {
             die('Failed to setup a database connection');
@@ -306,9 +307,9 @@ class UserHelper
             die("Not all requirements to save the user information has been met.");
         }
         if ($update) {
-            self::saveExistingUser($user, $password);
+            return self::saveExistingUser($user, $password);
         } else {
-            self::saveNewUser($user, $password);
+            return self::saveNewUser($user, $password);
         }
     }
 
@@ -333,8 +334,9 @@ class UserHelper
             $stmt->bindValue(':role', $user->get_role());
             $stmt->bindValue(':disabled', $user->get_disabled());
             $stmt->execute();
+            return $user;
         } else {
-            die('Internal error setting up the database connection');
+            return new User(null,null,null,false,"",array(),false, false,null);
         }
     }
 
@@ -342,16 +344,18 @@ class UserHelper
     {
         global $pdosave;
         // Prepare our SQL
-        if ($stmt = $pdosave->prepare('insert into user (username, firstName, password, email, changepwonl) values (:username, :firstName, :password, :emailaddress, :changepwonl)')) {
+        if ($stmt = $pdosave->prepare('insert into user (username, firstName, password, email, changepwonl, disabled) values (:username, :firstName, :password, :emailaddress, :changepwonl, :disabled)')) {
             // The db fields role and disabled are not being set because we want the defaults for those fields.
             $stmt->bindValue(':username', $user->get_username());
             $stmt->bindValue(':firstName', $user->get_firstName());
             $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
             $stmt->bindValue(':emailaddress', $user->get_email());
-            $stmt->bindValue(":changepwonl", 1);
+            $stmt->bindValue(":changepwonl", $user->get_changepwonl());
+            $stmt->bindValue(":disabled", $user->get_disabled());
             $stmt->execute();
+            return $user;
         } else {
-            die('Internal error setting up the database connection');
+            return new User(null,null,null,false,"",array(),false, false,null);
         }
     }
 
