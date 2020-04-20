@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false) {
 }
 $curUser = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
 // Don't we have a user, or does the user already have 2FA enabled? Then go to the index page
-if (empty($curUser->get_username()) || $curUser->has2fa()) {
+if ($curUser->isEmpty() || $curUser->has2fa()) {
     header('Location: ..\index.php');
 }
 

@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false) {
 }
 $curUser = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
 // Don't we have a user, or doesn't the user have 2FA enabled? Then go to the index page
-if (empty($curUser->get_username()) || !$curUser->has2fa()) {
+if ($curUser->isEmpty() || !$curUser->has2fa()) {
     header('Location: ..\index.php');
 }
 
@@ -21,7 +21,7 @@ if (isset($_POST['username'])) {
     $freshStart = false;
     // Make sure we have the correct user
     $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn($_POST['username'], $_POST['password'], $_POST['2facode']);
-    if (!empty($authenticatedUser->get_username()) && $curUser->get_username() === $authenticatedUser->get_username()) {
+    if (!$authenticatedUser->isEmpty() && $curUser->get_username() === $authenticatedUser->get_username()) {
         UserHelper::save2FASecret($authenticatedUser, null);
     } else {
         $error = true;

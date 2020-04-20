@@ -27,7 +27,7 @@ class User
      * @param $disabled
      * @param $timestamp
      */
-    public function __construct($username, $firstName, $email, $has2fa, $role, array $permission, $changepwonl, $disabled, $timestamp)
+    public function __construct($username = '', $firstName = '', $email = '', $has2fa = false, $role = '', array $permission = array(), $changepwonl = false, $disabled = false, $timestamp = null)
     {
         $this->username = $username;
         $this->firstName = $firstName;
@@ -65,7 +65,8 @@ class User
         return $this->has2fa;
     }
 
-    public function set_has2fa($hasIt) {
+    public function set_has2fa($hasIt)
+    {
         $this->has2fa = $hasIt;
     }
 
@@ -102,6 +103,11 @@ class User
     public function hasPermission($wantedPermission)
     {
         return in_array($wantedPermission, $this->permission);
+    }
+
+    public function isEmpty()
+    {
+        return empty($this->username);
     }
 
     public function toString()
@@ -167,7 +173,7 @@ class UserHelper
                     $user = self::authenticateUser($user, $password, $result['password'], $facode, $result['fasecret'], $loginInSession);
                 }
             } else {
-                $user = new User('', '', '', false, '', array(), false, false, '');
+                $user = new User();
             }
         } else {
             die('Internal error setting up the database connection');
@@ -190,7 +196,7 @@ class UserHelper
         } else {
             debugToConsole("Password and/or 2FA don't match the stored credentials, destroy the session");
             // Authentication failed, make sure to return an empty user
-            $user = new User('', '', '', false,'', array(), false, false, '');
+            $user = new User();
             if ($loginInSession) {
                 // If logging in in the session was required, then destroy the session due to failed login attempt
                 session_unset();
@@ -336,7 +342,7 @@ class UserHelper
             $stmt->execute();
             return $user;
         } else {
-            return new User(null,null,null,false,"",array(),false, false,null);
+            return new User();
         }
     }
 
@@ -355,7 +361,7 @@ class UserHelper
             $stmt->execute();
             return $user;
         } else {
-            return new User(null,null,null,false,"",array(),false, false,null);
+            return new User();
         }
     }
 
@@ -368,7 +374,7 @@ class UserHelper
             $stmt->bindValue(':username', $user->get_username());
             $stmt->bindValue(':fasecret', $fasecret);
             $stmt->execute();
-            if($isCurrentUser) {
+            if ($isCurrentUser) {
                 // Update the current user (we're working with timestamps for validation, and that's changed)
                 $_SESSION[SESSION_USER] = serialize(self::loadUser($user->get_username()));
             }
@@ -393,9 +399,9 @@ class UserHelper
                 session_unset();
                 session_destroy();
                 $_SESSION[SESSION_LOGGEDIN] = FALSE;
-                $user = null;
+                $user = new User();
             }
-            if ($user != null) {
+            if (!$user->isEmpty()) {
                 debugToConsole("Validating user \"$username\" - OK");
             }
             return $user;
@@ -403,5 +409,34 @@ class UserHelper
             return false;
         }
 
+    }
+
+    public static function loadAllUsers() {
+        global $pdoread;
+
+        debugToConsole("Requesting list of all Users...");
+
+        // Check if we have a valid read connection
+        if (!isset($pdoread)) {
+            die('Failed to setup a database connection');
+        }
+
+        $listUsers = [];
+
+        // Prepare our SQL
+        if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.fasecret, u.email, u.role, u.changepwonl, u.disabled, u.timestamp from user u')) {
+            $stmt->bindParam(':username', $username);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                while($result = $stmt->fetch()) {
+                    // Save account to user and add it to array
+                    $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], array(), $result['changepwonl'], $result['disabled'], $result['timestamp']);
+                    array_push($listUsers, serialize($user));
+                }
+            }
+        } else {
+            die('Internal error setting up the database connection');
+        }
+        return $listUsers;
     }
 }

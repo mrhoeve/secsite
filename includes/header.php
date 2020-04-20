@@ -16,14 +16,15 @@ include_once(dirname(__FILE__) . "/User.php");
           integrity="sha384-REHJTs1r2ErKBuJB0fCK99gCYsVjwxHrSU0N7I1zl9vZbggVJXRMsv/sLlOAGb4M" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo LEVEL ?>css/style.css">
     <title>SomeSite</title>
 </head>
 
 <body data-target="#main-nav" id="home">
 <?php
-$user = null;
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user === null) {
+$user = new User();
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user->isEmpty()) {
     $user = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
 }
 ?>
@@ -39,19 +40,19 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user === 
                 <li class="nav-item">
                     <a href="<?php echo LEVEL ?>index.php" class="nav-link">Home</a>
                 </li>
-                <?php if ($user != null && ($user->hasPermission(PERMISSION_RESET_TOTP))) { ?>
+                <?php if (!$user->isEmpty() && ($user->hasPermission(PERMISSION_RESET_TOTP))) { ?>
                     <li class="nav-item">
                         <a href="#explore-head-section" class="nav-link">OTP Admin</a>
                     </li>
                 <?php } ?>
-                <?php if ($user != null && ($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_CREATE_ACCOUNT) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT))) { ?>
+                <?php if (!$user->isEmpty() && ($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_CREATE_ACCOUNT) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT))) { ?>
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                             Accounts
                         </a>
                         <div class="dropdown-menu">
                             <?php if($user->hasPermission(PERMISSION_RESET_PASSWORD)) { ?> <a href="#" class="dropdown-item">Reset wachtwoord</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Bekijk accounts</a><?php } ?>
+                            <?php if($user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?> <a href="<?php echo LEVEL ?>admin/selectuser.php" class="dropdown-item">Bekijk accounts</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_CREATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Creëer account</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Update account</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Archiveer account</a><?php } ?>
@@ -59,7 +60,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user === 
                         </div>
                     </li>
                 <?php } ?>
-                <?php if ($user != null) { ?>
+                <?php if (!$user->isEmpty()) { ?>
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">User: <?php echo $user->get_firstName() ?></a>
                         <div class="dropdown-menu">

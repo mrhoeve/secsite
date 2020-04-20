@@ -9,12 +9,12 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     $freshStart = true;
     $error = false;
 
-    $user = null;
+    $user = new User();
     if (isset($_POST['username']) || isset($_POST['password'])) {
         $freshStart = false;
         $facode = isset($_POST['2facode']) ? $_POST['2facode'] : "";
         $user = UserHelper::authenticateAndLoginUser($_POST['username'], $_POST['password'], $facode);
-        if (empty($user->get_username())) $error = true;
+        if ($user->isEmpty()) $error = true;
     }
 
     setLevelToRoot("..");

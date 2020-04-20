@@ -27,7 +27,7 @@ if (!$freshStart && !$error) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
     debugToConsole('New user created: ' . $createUser->toString());
     $newUser = UserHelper::saveUser($createUser, $passone, false);
-    if (empty($newUser->get_username())) $techError = true;
+    if ($newUser->isEmpty()) $techError = true;
 } ?>
 
     <section id="createaccount">
