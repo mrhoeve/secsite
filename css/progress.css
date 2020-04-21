@@ -207,3 +207,8 @@ p[data-value]:after {
 .progress-form-group {
     height: 15px;
 }
+
+.tooltip-inner {
+    max-width: 380px;
+    width: 380px;
+}

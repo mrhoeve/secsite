@@ -1,6 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
 setLevelToRoot("..");
+loadProgressCss();
 include_once(dirname(__FILE__) . "/../includes/header.php");
 
 // We can't create a user when someone is logged in

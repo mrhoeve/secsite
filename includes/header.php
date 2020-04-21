@@ -18,6 +18,7 @@ include_once(dirname(__FILE__) . "/User.php");
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="<?php echo LEVEL ?>css/style.css">
+    <?php if(defined('LOAD_PROGRESS_CSS')) { ?><link rel="stylesheet" href="<?php echo LEVEL ?>css/progress.css"><?php } ?>
     <title>SomeSite</title>
 </head>
 

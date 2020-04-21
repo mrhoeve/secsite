@@ -39,5 +39,10 @@ function setLevelToRoot($level)
     define('LEVEL', $level);
 }
 
+function loadProgressCss()
+{
+    define('LOAD_PROGRESS_CSS', true);
+}
+
 //b.	‘Administrator’ role may create, read, update, delete and archive accounts.
 //c.	‘Helpdesk’ role may update TOTP secret key (i.e. reset) and/or password

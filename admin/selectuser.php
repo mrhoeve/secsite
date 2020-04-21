@@ -23,6 +23,8 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
     // inclusief een hashcode van md5(serialized_user_met_salt). Dan zitten we redelijk safe als iemand al doorheeft dat er een base64encoded string in zit ;-)
 
     ?>
+
+
     <section id="login">
         <div class="container py-5">
             <div class="row">
@@ -32,6 +34,14 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                         <tr>
                             <th class="th-sm">
                             </th>
+                            <th class="th-sm" colspan="4">Gebruikersinformatie
+                            </th>
+                            <th class="th-sm text-center" colspan="5">Acties
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="th-sm text-center">B
+                            </th>
                             <th class="th-sm">Username
                             </th>
                             <th class="th-sm">Naam
@@ -40,21 +50,93 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                             </th>
                             <th class="th-sm">Rol
                             </th>
-                            <th class="th-sm">Actie
+                            <th class="th-sm text-center">E
+                            </th>
+                            <th class="th-sm text-center">C
+                            </th>
+                            <th class="th-sm text-center">2
+                            </th>
+                            <th class="th-sm text-center">A
+                            </th>
+                            <th class="th-sm text-center">D
                             </th>
                         </tr>
                         </thead>
                         <tbody>
                         <?php foreach ($listUsers as $user) {
                             $selUser = getUser($user);
+                            $encodedUser = base64_encode(serialize($selUser));
+                            $checkcode = UserHelper::calculateCheckcode($encodedUser)
                             ?>
                             <tr>
-                                <td><?php if($selUser->isDisabled()) echo "<i class=\"fas fa-ban\"></i>"; else echo " "; ?></td>
+                                <td class="text-center"><?php if ($selUser->isDisabled()) echo "<i class=\"fas fa-ban\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Gebruiker is gearchiveerd\"></i>"; else echo " "; ?></td>
                                 <td><?php echo $selUser->get_username() ?></td>
                                 <td><?php echo $selUser->get_firstName() ?></td>
                                 <td><?php echo $selUser->get_email() ?></td>
                                 <td><?php echo $selUser->get_role() ?></td>
-                                <td><i class="fas fa-user-edit"></i> <i class="fas fa-key"></i> <i class="fas fa-user-slash"></i> <i class="fas fa-user-times"> <i class="fas fa-user-plus"></i></i></td>
+                                <td class="text-center">
+                                    <form action="edituser.php" method="post">
+                                        <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
+                                        <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
+                                        <button type="submit" name="submit" value="submit"
+                                                class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
+                                                data-placement="bottom" title="Bewerk deze gebruiker"><i
+                                                    class="fas fa-user-edit"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form action="edituser.php" method="post">
+                                        <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
+                                        <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
+                                        <button type="submit" name="submit" value="submit"
+                                                class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
+                                                data-placement="bottom" title="Wijzig wachtwoord"><i
+                                                    class="fas fa-key"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <form action="edituser.php" method="post">
+                                        <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
+                                        <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
+                                        <button type="submit" name="submit" value="submit"
+                                                class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
+                                                data-placement="bottom" title="Reset 2FA"><i class="fas fa-qrcode"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <?php if (!$selUser->isDisabled()) { ?>
+                                    <td class="text-center">
+                                        <form action="edituser.php" method="post">
+                                            <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
+                                            <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
+                                            <button type="submit" name="submit" value="submit"
+                                                    class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
+                                                    data-placement="bottom" title="Archiveer gebruiker"><i
+                                                        class="fas fa-user-slash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                <?php } else { ?>
+                                    <td class="text-center">
+                                        <button type="submit" name="submit" value="submit"
+                                                class="btn btn-sm btn-secondary" disabled><i
+                                                    class="fas fa-user-slash"></i>
+                                        </button>
+                                    </td>
+                                <?php } ?>
+                                <td class="text-center">
+                                    <form action="edituser.php" method="post">
+                                        <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
+                                        <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
+                                        <button type="submit" name="submit" value="submit"
+                                                class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
+                                                data-placement="bottom" title="Verwijder gebruiker"><i
+                                                    class="fas fa-user-times"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php } ?>
                         </tbody>
@@ -70,12 +152,21 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                             </th>
                             <th>Rol
                             </th>
-                            <th>Actie
+                            <th>E
+                            </th>
+                            <th>C
+                            </th>
+                            <th>2
+                            </th>
+                            <th>A
+                            </th>
+                            <th>D
                             </th>
                         </tr>
 
                         </tfoot>
                     </table>
+                    <i class="fas fa-user-plus"></i>
                 </div>
             </div>
         </div>
@@ -92,15 +183,37 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
 
         <!-- Use of datatables: https://datatables.net/examples/api/ -->
         <script type="text/javascript">
+            $('[data-toggle="tooltip"]').tooltip();
             $('#dtUserTable').dataTable({
-                "order": [[ 1, "asc"]],
+                "order": [[1, "asc"]],
                 "language": {
-                    "lengthMenu": "Toon _MENU_ records per pagina",
-                    "zeroRecords": "Geen resultaten gevonden",
-                    "info": "Pagina _PAGE_ van _PAGES_ wordt getoond",
-                    "infoEmpty": "Geen records aanwezig",
-                    "infoFiltered": "(gefilterd van totaal _MAX_ records)"
-                }
+                    "sProcessing": "Bezig...",
+                    "sLengthMenu": "_MENU_ resultaten weergeven",
+                    "sZeroRecords": "Geen resultaten gevonden",
+                    "sInfo": "_START_ tot _END_ van _TOTAL_ resultaten",
+                    "sInfoEmpty": "Geen resultaten om weer te geven",
+                    "sInfoFiltered": " (gefilterd uit _MAX_ resultaten)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Zoeken:",
+                    "sEmptyTable": "Geen resultaten aanwezig in de tabel",
+                    "sInfoThousands": ".",
+                    "sLoadingRecords": "Een moment geduld aub - bezig met laden...",
+                    "oPaginate": {
+                        "sFirst": "Eerste",
+                        "sLast": "Laatste",
+                        "sNext": "Volgende",
+                        "sPrevious": "Vorige"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activeer om kolom oplopend te sorteren",
+                        "sSortDescending": ": activeer om kolom aflopend te sorteren"
+                    }
+                },
+                "columnDefs": [{
+                    "targets": [0, 5, 6, 7, 8, 9],
+                    "orderable": false,
+                    "searchable": false
+                }]
             });
         </script>
         <?php

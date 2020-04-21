@@ -411,7 +411,8 @@ class UserHelper
 
     }
 
-    public static function loadAllUsers() {
+    public static function loadAllUsers()
+    {
         global $pdoread;
 
         debugToConsole("Requesting list of all Users...");
@@ -428,7 +429,7 @@ class UserHelper
             $stmt->bindParam(':username', $username);
             $stmt->execute();
             if ($stmt->rowCount() > 0) {
-                while($result = $stmt->fetch()) {
+                while ($result = $stmt->fetch()) {
                     // Save account to user and add it to array
                     $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], array(), $result['changepwonl'], $result['disabled'], $result['timestamp']);
                     array_push($listUsers, serialize($user));
@@ -439,4 +440,39 @@ class UserHelper
         }
         return $listUsers;
     }
+
+    private static function checkcodeSalt(): string
+    {
+        return "nNxCMPgg06mZsGwn";
+    }
+
+    private
+    function unserializeUserObject(User $user): User
+    {
+        return $user;
+    }
+
+    public
+    static function checkCodeAndGetUser($encodedUser, $checkcode): User
+    {
+        debugToConsole("Checking encoded user\nDecoding user...");
+        $userWithSalt = self::checkcodeSalt() . $encodedUser;
+        $calculatedCheckcode = md5($userWithSalt);
+        if ($calculatedCheckcode != $checkcode) {
+            debugToConsole("Calculated checkcode doesn't match given checkcode -> return empty user");
+            return new User();
+        }
+        $serializedUser = base64_decode($encodedUser, true);
+        $unserializedUser = self::unserializeUserObject(unserialize($serializedUser));
+        debugToConsole("Deserializing user " . $unserializedUser->get_username());
+        return $unserializedUser;
+    }
+
+    public
+    static function calculateCheckcode(string $serializedUser): string
+    {
+        $userWithSalt = self::checkcodeSalt() . $serializedUser;
+        return md5($userWithSalt);
+    }
+
 }
