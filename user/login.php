@@ -1,6 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
-include_once(dirname(__FILE__) . "/../includes/User.php");
+include_once(dirname(__FILE__) . "/../includes/user.php");
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     header('Location: ..\index.php');

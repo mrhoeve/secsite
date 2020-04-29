@@ -33,8 +33,8 @@ class User
         $this->firstName = $firstName;
         $this->email = $email;
         $this->has2fa = $has2fa;
-        if (!$role) {
-            $role = "Normal user";
+        if (!$role || $role == "none") {
+            $role = "Reguliere gebruiker";
         }
         $this->role = $role;
         $this->permission = $permission;
@@ -324,9 +324,9 @@ class UserHelper
         global $pdosave;
 
         if ($password) {
-            $sqlstmt = 'update user set firstName = :firstName, password = :password, email = :email, role = :role, disabled = :disabled where username = :username';
+            $sqlstmt = 'update user set firstName = :firstName, password = :password, email = :email, role = :role, changepwonl = :changepwonl, disabled = :disabled where username = :username';
         } else {
-            $sqlstmt = 'update user set firstName = :firstName, email = :email, role = :role, disabled = :disabled where username = :username';
+            $sqlstmt = 'update user set firstName = :firstName, email = :email, role = :role, changepwonl = :changepwonl, disabled = :disabled where username = :username';
         }
         // Prepare our SQL
         if ($stmt = $pdosave->prepare($sqlstmt)) {
@@ -336,8 +336,13 @@ class UserHelper
             if ($password) {
                 $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
             }
-            $stmt->bindValue(':emailaddress', $user->get_email());
-            $stmt->bindValue(':role', $user->get_role());
+            $stmt->bindValue(':email', $user->get_email());
+            if($user->get_role()=="Reguliere gebruiker") {
+                $stmt->bindValue(':role', null);
+            } else {
+                $stmt->bindValue(':role', $user->get_role());
+            }
+            $stmt->bindValue(':changepwonl', $user->get_changepwonl());
             $stmt->bindValue(':disabled', $user->get_disabled());
             $stmt->execute();
             return $user;
@@ -350,13 +355,17 @@ class UserHelper
     {
         global $pdosave;
         // Prepare our SQL
-        if ($stmt = $pdosave->prepare('insert into user (username, firstName, password, email, changepwonl, disabled) values (:username, :firstName, :password, :emailaddress, :changepwonl, :disabled)')) {
-            // The db fields role and disabled are not being set because we want the defaults for those fields.
+        if ($stmt = $pdosave->prepare('insert into user (username, firstName, password, email, changepwonl, role, disabled) values (:username, :firstName, :password, :emailaddress, :changepwonl, :role, :disabled)')) {
             $stmt->bindValue(':username', $user->get_username());
             $stmt->bindValue(':firstName', $user->get_firstName());
             $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
             $stmt->bindValue(':emailaddress', $user->get_email());
             $stmt->bindValue(":changepwonl", $user->get_changepwonl());
+            if($user->get_role()=="Reguliere gebruiker") {
+                $stmt->bindValue(':role', null);
+            } else {
+                $stmt->bindValue(':role', $user->get_role());
+            }
             $stmt->bindValue(":disabled", $user->get_disabled());
             $stmt->execute();
             return $user;
@@ -447,7 +456,7 @@ class UserHelper
     }
 
     private
-    function unserializeUserObject(User $user): User
+    static function unserializeUserObject(User $user): User
     {
         return $user;
     }

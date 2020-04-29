@@ -3,7 +3,7 @@ if(!defined('LEVEL')) {
     die("LEVEL not defined");
 }
 include_once(dirname(__FILE__) . "/dbconnection.php");
-include_once(dirname(__FILE__) . "/User.php");
+include_once(dirname(__FILE__) . "/user.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">

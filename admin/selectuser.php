@@ -19,9 +19,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
 
     $listUsers = UserHelper::loadAllUsers();
 
-    // Strategie om verder te gaan. De data moet als base64encoded string naar de volgende pagina,
-    // inclusief een hashcode van md5(serialized_user_met_salt). Dan zitten we redelijk safe als iemand al doorheeft dat er een base64encoded string in zit ;-)
-
     ?>
 
 
@@ -66,7 +63,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                         <?php foreach ($listUsers as $user) {
                             $selUser = getUser($user);
                             $encodedUser = base64_encode(serialize($selUser));
-                            $checkcode = UserHelper::calculateCheckcode($encodedUser)
+                            $checkcode = UserHelper::calculateCheckcode($encodedUser);
                             ?>
                             <tr>
                                 <td class="text-center"><?php if ($selUser->isDisabled()) echo "<i class=\"fas fa-ban\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Gebruiker is gearchiveerd\"></i>"; else echo " "; ?></td>

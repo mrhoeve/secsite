@@ -98,6 +98,7 @@ START TRANSACTION;
 USE `security`;
 INSERT INTO `security`.`Role` (`role`) VALUES ('Helpdesk');
 INSERT INTO `security`.`Role` (`role`) VALUES ('Administrator');
+INSERT INTO `security`.`Role` (`role`) VALUES ('Root');
 
 COMMIT;
 
@@ -111,6 +112,7 @@ INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, 
 INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('helpdesk', 'WelcomeHelpdesk01', NULL, 'Helpdesk', 'helpdesk@voorbeeld.local', 'Helpdesk', 1, 0, NULL);
 INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('user', 'WelcomeUser01', NULL, 'User', 'user@voorbeeld.local', NULL, 1, 0, NULL);
 INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('disableduser', 'WelcomeDisabledUser01', NULL, 'Disabled User', 'disableduser@voorbeeld.local', NULL, 1, 1, NULL);
+INSERT INTO `security`.`User` (`username`, `password`, `fasecret`, `firstname`, `email`, `role`, `changepwonl`, `disabled`, `timestamp`) VALUES ('root', 'WelcomeRoot01', NULL, 'Root User', 'root@voorbeeld.local', 'Root', 0, 0, NULL);
 
 COMMIT;
 
@@ -143,6 +145,13 @@ INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Administ
 INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Administrator', 'PERMISSION_ARCHIVE_ACCOUNT');
 INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Helpdesk', 'PERMISSION_RESET_PASSWORD');
 INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Helpdesk', 'PERMISSION_RESET_TOTP');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_CREATE_ACCOUNT');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_READ_ACCOUNT');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_UPDATE_ACCOUNT');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_DELETE_ACCOUNT');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_ARCHIVE_ACCOUNT');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_RESET_PASSWORD');
+INSERT INTO `security`.`RolePermission` (`role`, `permission`) VALUES ('Root', 'PERMISSION_RESET_TOTP');
 
 COMMIT;
 
