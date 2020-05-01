@@ -2,7 +2,7 @@
 include_once(dirname(__FILE__) . "/encodeduser.php");
 
 if(!$user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) {
-    header('Location: ..\index.php');
+    header('Location: selectuser.php');
 }
 
 $encodedUser = base64_encode(serialize($retrievedUser));

@@ -83,7 +83,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <form action="edituser.php" method="post">
+                                    <form action="changeuserpassword.php" method="post">
                                         <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                                         <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                         <button type="submit" name="submit" value="submit"

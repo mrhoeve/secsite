@@ -25,8 +25,12 @@ include_once(dirname(__FILE__) . "/user.php");
 <body data-target="#main-nav" id="home">
 <?php
 $user = new User();
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user->isEmpty()) {
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $user = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
+    if($user->mustChangePasswordOnNextLogon() && !defined('CHANGE_OWN_PASSWORD')) {
+        $location = 'Location: ' . LEVEL . 'user/changepassword.php';
+        header($location);
+    }
 }
 ?>
 
@@ -52,8 +56,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user->isE
                             Accounts
                         </a>
                         <div class="dropdown-menu">
-                            <?php if($user->hasPermission(PERMISSION_RESET_PASSWORD)) { ?> <a href="#" class="dropdown-item">Reset wachtwoord</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?> <a href="<?php echo LEVEL ?>admin/selectuser.php" class="dropdown-item">Bekijk accounts</a><?php } ?>
+                            <?php if($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?> <a href="<?php echo LEVEL ?>admin/selectuser.php" class="dropdown-item">Bewerk accounts</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_CREATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Creëer account</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Update account</a><?php } ?>
                             <?php if($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Archiveer account</a><?php } ?>
@@ -65,6 +68,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $user->isE
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">User: <?php echo $user->get_firstName() ?></a>
                         <div class="dropdown-menu">
+                           <a href="<?php echo LEVEL ?>user/changepassword.php" class="dropdown-item">Wijzig wachtwoord</a>
                             <?php if(!$user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/setup2fa.php" class="dropdown-item">2FA instellen</a><?php } ?>
                             <?php if($user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/remove2fa.php" class="dropdown-item">2FA verwijderen</a><?php } ?>
                             <a href="<?php echo LEVEL ?>user/logout.php" class="dropdown-item">Uitloggen</a>

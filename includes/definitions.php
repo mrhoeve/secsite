@@ -44,5 +44,10 @@ function loadProgressCss()
     define('LOAD_PROGRESS_CSS', true);
 }
 
+function changeOwnPassword()
+{
+    define('CHANGE_OWN_PASSWORD', true);
+}
+
 //b.	‘Administrator’ role may create, read, update, delete and archive accounts.
 //c.	‘Helpdesk’ role may update TOTP secret key (i.e. reset) and/or password

@@ -301,7 +301,7 @@ class UserHelper
     }
 
     // Save a user
-    public static function saveUser(User $user, $password = "", $update = true)
+    public static function saveUser(User $user, $password = "", $update = true, $changepwonl = false)
     {
         global $pdosave;
         // Check if we have a valid save connection
@@ -313,13 +313,13 @@ class UserHelper
             die("Not all requirements to save the user information has been met.");
         }
         if ($update) {
-            return self::saveExistingUser($user, $password);
+            return self::saveExistingUser($user, $password, $changepwonl);
         } else {
             return self::saveNewUser($user, $password);
         }
     }
 
-    private static function saveExistingUser(User $user, $password)
+    private static function saveExistingUser(User $user, $password, $changepwonl)
     {
         global $pdosave;
 
@@ -335,6 +335,9 @@ class UserHelper
             $stmt->bindValue(':firstName', $user->get_firstName());
             if ($password) {
                 $stmt->bindValue(':password', password_hash($password, PASSWORD_BCRYPT));
+                $stmt->bindValue(':changepwonl', $changepwonl ? 1 : 0);
+            } else {
+                $stmt->bindValue(':changepwonl', $user->get_changepwonl());
             }
             $stmt->bindValue(':email', $user->get_email());
             if($user->get_role()=="Reguliere gebruiker") {
@@ -342,7 +345,6 @@ class UserHelper
             } else {
                 $stmt->bindValue(':role', $user->get_role());
             }
-            $stmt->bindValue(':changepwonl', $user->get_changepwonl());
             $stmt->bindValue(':disabled', $user->get_disabled());
             $stmt->execute();
             return $user;
