@@ -300,6 +300,21 @@ class UserHelper
         }
     }
 
+    public static function editUserArchiveStatus(User $user, $disabled) {
+        global $pdosave;
+
+        $sqlstmt = 'update user set disabled = :disabled where username = :username';
+        // Prepare our SQL
+        if ($stmt = $pdosave->prepare($sqlstmt)) {
+            $stmt->bindValue(':username', $user->get_username());
+            $stmt->bindValue(':disabled', $disabled ? 1 : 0);
+            $stmt->execute();
+            return self::loadUser($user->get_username());
+        } else {
+            return new User();
+        }
+    }
+
     // Save a user
     public static function saveUser(User $user, $password = "", $update = true, $changepwonl = false)
     {
@@ -375,6 +390,26 @@ class UserHelper
             return new User();
         }
     }
+
+    public static function removeUser(User $user)
+    {
+        global $pdosave;
+        $isCurrentUser = ($user->get_username() === UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']))->get_username());
+        // Prepare our SQL
+        if ($stmt = $pdosave->prepare('delete from user where username = :username')) {
+            $stmt->bindValue(':username', $user->get_username());
+            $stmt->execute();
+            if ($isCurrentUser) {
+                // Update the current user since it no longer exists
+                session_unset();
+                session_destroy();
+                $_SESSION[SESSION_LOGGEDIN] = FALSE;
+            }
+        } else {
+            die('Internal error setting up the database connection');
+        }
+    }
+
 
     public static function save2FASecret(User $user, $fasecret)
     {

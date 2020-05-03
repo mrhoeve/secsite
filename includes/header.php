@@ -45,23 +45,9 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                 <li class="nav-item">
                     <a href="<?php echo LEVEL ?>index.php" class="nav-link">Home</a>
                 </li>
-                <?php if (!$user->isEmpty() && ($user->hasPermission(PERMISSION_RESET_TOTP))) { ?>
-                    <li class="nav-item">
-                        <a href="#explore-head-section" class="nav-link">OTP Admin</a>
-                    </li>
-                <?php } ?>
                 <?php if (!$user->isEmpty() && ($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_CREATE_ACCOUNT) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT))) { ?>
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                            Accounts
-                        </a>
-                        <div class="dropdown-menu">
-                            <?php if($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?> <a href="<?php echo LEVEL ?>admin/selectuser.php" class="dropdown-item">Bewerk accounts</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_CREATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Creëer account</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Update account</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Archiveer account</a><?php } ?>
-                            <?php if($user->hasPermission(PERMISSION_DELETE_ACCOUNT)) { ?> <a href="#" class="dropdown-item">Verwijder account</a><?php } ?>
-                        </div>
+                    <li class="nav-item">
+                        <a href="<?php echo LEVEL ?>admin/selectuser.php" class="nav-link">Beheer accounts</a>
                     </li>
                 <?php } ?>
                 <?php if (!$user->isEmpty()) { ?>
