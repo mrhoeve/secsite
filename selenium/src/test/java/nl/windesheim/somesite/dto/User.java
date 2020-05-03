@@ -1,0 +1,41 @@
+package nl.windesheim.somesite.dto;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
+
+public class User {
+	private String username;
+	private String password;
+	private String faSecret;
+	
+	public User(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public String getFaSecret() {
+		return faSecret;
+	}
+	
+	public void setFaSecret(String faSecret) {
+		this.faSecret = faSecret;
+	}
+}

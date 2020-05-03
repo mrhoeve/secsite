@@ -60,8 +60,8 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="currentUser">User: <?php echo $user->get_firstName() ?></a>
                         <div class="dropdown-menu">
                            <a href="<?php echo LEVEL ?>user/changepassword.php" class="dropdown-item">Wijzig wachtwoord</a>
-                            <?php if(!$user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/setup2fa.php" class="dropdown-item">2FA instellen</a><?php } ?>
-                            <?php if($user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/remove2fa.php" class="dropdown-item">2FA verwijderen</a><?php } ?>
+                            <?php if(!$user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/setup2fa.php" class="dropdown-item" id="enable2fa">2FA instellen</a><?php } ?>
+                            <?php if($user->has2fa()) { ?> <a href="<?php echo LEVEL ?>user/remove2fa.php" class="dropdown-item" id="disable2fa">2FA verwijderen</a><?php } ?>
                             <a href="<?php echo LEVEL ?>user/logout.php" class="dropdown-item">Uitloggen</a>
                         </div>
                     </li>

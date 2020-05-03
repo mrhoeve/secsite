@@ -55,13 +55,13 @@ if ($freshStart || $error) {
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart && !$error) { ?>
-                            <p>2FA is succesvol toegevoegd.</p>
-                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2">Terug naar
+                            <p id="succes2fa">2FA is succesvol toegevoegd.</p>
+                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="succes2fabutton">Terug naar
                                 index</a>
                         <?php } else {
                             // We have a fresh start, or we've got an error
                             if ($error) { ?>
-                                <p class="text-danger">Wachtwoordvaliatie of validatie van de ingevoerde 2FA code
+                                <p class="text-danger" id="error2fa">Wachtwoordvaliatie of validatie van de ingevoerde 2FA code
                                     is mislukt.</p>
                             <?php } ?>
                             <form action="setup2fa.php" method="post">
@@ -81,14 +81,14 @@ if ($freshStart || $error) {
                                     <p class="text-center">Scan deze barcode met een geschikte app</p>
                                     <img src="<?php echo $url ?>" class="img-fluid mx-auto d-block">
                                     <p class="text-center">of voer deze code in:</br>
-                                        <b><?php echo $secret ?></b></p>
+                                        <b><span id="secret"><?php echo $secret ?></span></b></p>
                                 </div>
                                 <div class="form-group">
                                     <label for="2facode">Genereer nu een 2FA code en voer deze in</label>
                                     <input type="text" name="2facode" id="2facode" autocomplete="none"
                                            placeholder="2FA code" class="form-control">
                                 </div>
-                                <input type="submit" value="2FA vastleggen" class="btn btn-primary btn-block">
+                                <input type="submit" value="2FA vastleggen" class="btn btn-primary btn-block" id="submit2fa">
                             </form> <?php } ?>
                     </div>
                 </div>

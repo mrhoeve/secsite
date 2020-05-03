@@ -69,10 +69,24 @@ public class Database {
 		return false;
 	}
 	
+	public Boolean remove2FASecret(String username) {
+		try (Connection connection = DriverManager.getConnection(DbUrl, Settings.MYSQL_USER, Settings.MYSQL_PASS);
+		     PreparedStatement statement = connection.prepareStatement("UPDATE user SET fasecret = null WHERE username = ?")) {
+			statement.setString(1, username);
+			statement.execute();
+			return statement.getUpdateCount() == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		}
+		return false;
+	}
+	
 	public Boolean resetUserForLogin(String username, String password) {
 		assertThat(setPasswordForUser(username, password)).isTrue();
 		assertThat(setDisabledForUser(username, false)).isTrue();
 		assertThat(setChangePwONLForUser(username, false)).isTrue();
+		assertThat(remove2FASecret(username)).isTrue();
 		return true;
 	}
 	
