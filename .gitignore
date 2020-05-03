@@ -2,4 +2,4 @@
 .idea/
 
 setup/erd.mwb.bak
-/selenium/target/
+/selenium/target/**/*
