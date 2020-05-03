@@ -1,8 +1,7 @@
-package org.example.untitled.interactions;
+package nl.windesheim.somesite.interactions;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import static org.junit.jupiter.api.Assertions.fail;

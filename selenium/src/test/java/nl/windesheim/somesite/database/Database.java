@@ -1,6 +1,6 @@
-package org.example.untitled.database;
+package nl.windesheim.somesite.database;
 
-import org.example.untitled.settings.Settings;
+import nl.windesheim.somesite.settings.Settings;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
