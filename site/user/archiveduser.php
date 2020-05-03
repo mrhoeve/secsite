@@ -4,7 +4,7 @@ setLevelToRoot("..");
 include_once(dirname(__FILE__) . "/../includes/header.php");
 ?>
 
-    <section id="archiveduser">
+    <section id="archivedusersection">
         <div class="container py-5">
             <div class="row">
                 <div class="col-md-6 mx-auto">

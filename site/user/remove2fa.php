@@ -28,7 +28,7 @@ if (isset($_POST['username'])) {
     }
 }
 ?>
-<section id="remove2fa">
+<section id="remove2fasection">
     <div class="container py-5">
         <div class="row">
             <div class="col-md-6 mx-auto">

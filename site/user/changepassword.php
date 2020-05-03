@@ -33,7 +33,7 @@ if (!$freshStart && !$error) {
     if ($user->isEmpty()) $techError = true;
 } ?>
 
-    <section id="changepassword">
+    <section id="changepasswordsection">
         <div class="container py-5">
             <div class="row">
                 <div class="col-md-6 mx-auto">

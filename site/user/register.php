@@ -31,7 +31,7 @@ if (!$freshStart && !$error) {
     if ($newUser->isEmpty()) $techError = true;
 } ?>
 
-    <section id="createaccount">
+    <section id="createaccountsection">
         <div class="container py-5">
             <div class="row">
                 <div class="col-md-6 mx-auto">

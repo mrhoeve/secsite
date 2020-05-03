@@ -21,7 +21,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     include_once(dirname(__FILE__) . "/../includes/header.php");
 
     ?>
-    <section id="login">
+    <section id="loginsection">
         <div class="container py-5">
             <div class="row">
                 <div class="col-md-6 mx-auto">

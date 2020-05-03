@@ -45,7 +45,7 @@ if ($freshStart || $error) {
     }
 }
 ?>
-<section id="setup2fa">
+<section id="setup2fasection">
     <div class="container py-5">
         <div class="row">
             <div class="col-md-6 mx-auto">
