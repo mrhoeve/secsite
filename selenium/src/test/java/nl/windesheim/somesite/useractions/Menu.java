@@ -9,15 +9,28 @@ public class Menu {
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
-	public static void selectCurrentUserAndClickOnEnable2FA() {
+	public static void selectCurrentUserAndClickOnUitloggen() {
 		Interactions.performClick("//*[@id=\"currentUser\"]");
-		Interactions.performClick("//*[@id=\"enable2fa\"]");
+		Interactions.performClick("//*[@id=\"logout\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
-
+	
 	public static void selectCurrentUserAndClickOnWijzigWachtwoord() {
 		Interactions.performClick("//*[@id=\"currentUser\"]");
 		Interactions.performClick("//*[@id=\"changepassword\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
+	
+	public static void selectCurrentUserAndClickOnEnable2FA() {
+		Interactions.performClick("//*[@id=\"currentUser\"]");
+		Interactions.performClick("//*[@id=\"enable2fa\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
+	public static void selectCurrentUserAndClickOn2FAVerwijderen() {
+		Interactions.performClick("//*[@id=\"currentUser\"]");
+		Interactions.performClick("//*[@id=\"disable2fa\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
 }

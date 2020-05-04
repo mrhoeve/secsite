@@ -13,9 +13,18 @@ public class Login {
 		Interactions.fillTextbox("//*[@id=\"password\"]", password);
 	}
 	
+	public static void fill2FACode(String secret) {
+		Interactions.fillTextbox("//*[@id=\"2facode\"]", secret);
+	}
+	
 	public static void clickOnLoginButton() {
 		Interactions.performClick("//*[@id=\"buttonLogin\"]");
 		Webdriver.getInstance().waitForPageLoad();
+	}
+	
+	public static void assertError(Boolean expected) {
+		Boolean bvalue = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"error\"]")).size() > 0;
+		assertThat(bvalue).isEqualTo(expected);
 	}
 	
 	public static void assertSuccessfulLogin() {

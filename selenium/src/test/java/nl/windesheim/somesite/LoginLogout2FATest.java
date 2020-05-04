@@ -3,10 +3,7 @@ package nl.windesheim.somesite;
 import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
-import nl.windesheim.somesite.useractions.ChangePassword;
-import nl.windesheim.somesite.useractions.Enable2FA;
-import nl.windesheim.somesite.useractions.Login;
-import nl.windesheim.somesite.useractions.Menu;
+import nl.windesheim.somesite.useractions.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +14,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MainPageTest {
+public class LoginLogout2FATest {
 	private final String USERNAME = "admin";
 	private final String PASSWORD = "WelcomeAdmin01";
 	
@@ -42,14 +39,27 @@ public class MainPageTest {
 		login();
 		enable2FATest();
 		changePassword();
-		System.out.println(user);
+		loguitEnLogin();
+		remove2FATest();
 	}
 	
 	private void login() {
 		navigateTo("index.php");
 		Menu.clickOnLogin();
+		// Foute login 1
+		Login.fillCredentials(user.getUsername(), user.getPassword());
+		Login.fill2FACode("123456");
+		Login.clickOnLoginButton();
+		Login.assertError(true);
+		
+		// Foute login 2
+		Login.fillCredentials(user.getUsername(), "userGetPassword()");
+		Login.clickOnLoginButton();
+		Login.assertError(true);
+		
 		Login.fillCredentials(user.getUsername(), user.getPassword());
 		Login.clickOnLoginButton();
+		Login.assertError(false);
 		Login.assertSuccessfulLogin();
 	}
 	
@@ -93,7 +103,7 @@ public class MainPageTest {
 		Menu.selectCurrentUserAndClickOnWijzigWachtwoord();
 		ChangePassword.assertMustChange(false);
 		
-		// Geef goed huidig wachtwoord en 2 keer een goed nieuw wachtwoord
+		// Geef goed huidig wachtwoord en 2 keer een goed nieuw wachtwoord, maar geen TOTP code
 		ChangePassword.fillCurrentPassword(user.getPassword());
 		ChangePassword.fillFirstNewPassword(goodNewPassword);
 		ChangePassword.fillSecondNewPassword(goodNewPassword);
@@ -132,6 +142,57 @@ public class MainPageTest {
 		ChangePassword.assertError(false);
 		ChangePassword.assertSuccess(true);
 		
+		user.setPassword(goodNewPassword);
+		
 		ChangePassword.clickOnBackToIndexButton();
+	}
+	
+	private void loguitEnLogin() {
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		Menu.clickOnLogin();
+		Login.fillCredentials(user.getUsername(), user.getPassword());
+		Login.clickOnLoginButton();
+		Login.assertError(true);
+		
+		Login.fillCredentials(user.getUsername(), "JustSomePassword@12");
+		Login.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		Login.clickOnLoginButton();
+		Login.assertError(true);
+		
+		Login.fillCredentials(user.getUsername(), user.getPassword());
+		Login.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		Login.clickOnLoginButton();
+		Login.assertError(false);
+		Login.assertSuccessfulLogin();
+	}
+	
+	
+	private void remove2FATest() {
+		String passwordWithError = "Az091@#$%^&*()~<>?";
+		
+		Menu.selectCurrentUserAndClickOn2FAVerwijderen();
+		
+		// Verkeerd wachtwoord met juiste TOTP code
+		Remove2FA.fillPassword(passwordWithError);
+		Remove2FA.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		Remove2FA.clickOnSubmitButton();
+		Remove2FA.assertError(true);
+		Remove2FA.assertSuccess(false);
+
+		// Juist wachtwoord met verkeerde TOTP code
+		Remove2FA.fillPassword(user.getPassword());
+		Remove2FA.fill2FACode("1234567");
+		Remove2FA.clickOnSubmitButton();
+		Remove2FA.assertError(true);
+		Remove2FA.assertSuccess(false);
+		
+		// Juist wachtwoord met juiste TOTP code
+		Remove2FA.fillPassword(user.getPassword());
+		Remove2FA.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		Remove2FA.clickOnSubmitButton();
+		Remove2FA.assertError(false);
+		Remove2FA.assertSuccess(true);
+		user.setFaSecret("");
+		Remove2FA.clickOnBackToIndexButton();
 	}
 }

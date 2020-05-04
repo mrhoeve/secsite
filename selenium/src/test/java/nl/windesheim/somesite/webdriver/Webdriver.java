@@ -1,6 +1,6 @@
 package nl.windesheim.somesite.webdriver;
 
-import nl.windesheim.somesite.MainPageTest;
+import nl.windesheim.somesite.LoginLogout2FATest;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
@@ -16,7 +16,7 @@ public class Webdriver {
 	private final ChromeDriver driver;
 	
 	private Webdriver() {
-		String absolutePath = new File(MainPageTest.class.getClassLoader().getResource("chromedriver.exe").getFile()).getAbsolutePath();
+		String absolutePath = new File(LoginLogout2FATest.class.getClassLoader().getResource("chromedriver.exe").getFile()).getAbsolutePath();
 		System.setProperty("webdriver.chrome.driver", absolutePath);
 		driver = new ChromeDriver(options());
 	}

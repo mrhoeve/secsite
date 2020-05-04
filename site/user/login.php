@@ -37,7 +37,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                             <?php } else {
                                 // We have a fresh start, or we've got an error
                                 if ($error) { ?>
-                                    <p class="text-danger">Gebruikersnaam, wachtwoord of code onjuist.</p>
+                                    <p class="text-danger" id="error">Gebruikersnaam, wachtwoord of code onjuist.</p>
                                 <?php } ?>
                                 <form action="login.php" method="post">
                                     <div class="form-group">

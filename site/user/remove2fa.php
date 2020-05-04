@@ -38,13 +38,13 @@ if (isset($_POST['username'])) {
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart && !$error) { ?>
-                            <p>2FA is succesvol verwijderd.</p>
-                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2">Terug naar
+                            <p id="success">2FA is succesvol verwijderd.</p>
+                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                 index</a>
                         <?php } else {
                             // We have a fresh start, or we've got an error
                             if ($error) { ?>
-                                <p class="text-danger">Wachtwoordvaliatie of validatie van de ingevoerde 2FA code
+                                <p class="text-danger" id="error">Wachtwoordvaliatie of validatie van de ingevoerde 2FA code
                                     is mislukt.</p>
                             <?php } ?>
                             <form action="remove2fa.php" method="post">
@@ -64,7 +64,7 @@ if (isset($_POST['username'])) {
                                     <input type="text" name="2facode" id="2facode" autocomplete="none"
                                            placeholder="2FA code" class="form-control">
                                 </div>
-                                <input type="submit" value="2FA verwijderen" class="btn btn-warning btn-block">
+                                <input type="submit" value="2FA verwijderen" class="btn btn-warning btn-block" id="submit">
                             </form> <?php } ?>
                     </div>
                 </div>
