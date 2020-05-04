@@ -14,4 +14,10 @@ public class Menu {
 		Interactions.performClick("//*[@id=\"enable2fa\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
+
+	public static void selectCurrentUserAndClickOnWijzigWachtwoord() {
+		Interactions.performClick("//*[@id=\"currentUser\"]");
+		Interactions.performClick("//*[@id=\"changepassword\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
 }

@@ -35,13 +35,14 @@ public class Interactions {
 		}
 	}
 	
-	public static void fill2FACode(String xPath, String faSecret) {
+	public static String calculate2FACode(String faSecret) {
 		try {
 			long currentBucket = Math.floorDiv((System.currentTimeMillis() / 1000L), 30);
 			DefaultCodeGenerator g = new DefaultCodeGenerator(HashingAlgorithm.SHA1);
-			Interactions.fillTextbox(xPath, g.generate(faSecret, currentBucket));
+			return g.generate(faSecret, currentBucket);
 		} catch (CodeGenerationException e) {
 			fail();
+			return null;
 		}
 	}
 }

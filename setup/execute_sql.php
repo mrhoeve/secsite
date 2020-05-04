@@ -8,7 +8,7 @@
 
 # Include de te gebruiken database connectie en credentials
 # Zorg er wel voor dat de credentials geldig zijn en de juiste rechten hebben op de te gebruiken database
-include_once "../includes/dbconnection.php";
+include_once "../site/includes/dbconnection.php";
 
 # Lees het bestand in die gegenereerd is via MySQL Workbench
 $query = file_get_contents("create_db.sql");

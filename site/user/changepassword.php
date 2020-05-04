@@ -17,14 +17,17 @@ $currentpassword = isset($_POST['currentpassword']) ? $_POST['currentpassword'] 
 $facode = isset($_POST['2facode']) ? $_POST['2facode'] : '';
 $passone = isset($_POST['password']) ? $_POST['password'] : '';
 $passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
+$error = false;
 
-$currentUser = UserHelper::authenticateUserWithoutLoggingIn($username, $currentpassword, $facode);
-$userError = $currentUser->isEmpty() || $currentUser->get_username() != $user->get_username();
+if(!$freshStart) {
+    $currentUser = UserHelper::authenticateUserWithoutLoggingIn($username, $currentpassword, $facode);
+    $userError = $currentUser->isEmpty() || $currentUser->get_username() != $user->get_username();
 
-$passwordsValid = UserHelper::arePasswordsValid($passone, $passtwo);
+    $passwordsValid = UserHelper::arePasswordsValid($passone, $passtwo);
 
-$error = $userError || !$passwordsValid;
-$techError = false;
+    $error = $userError || !$passwordsValid;
+    $techError = false;
+}
 
 if (!$freshStart && !$error) {
     debugToConsole('Password changed of user ' . $currentUser->get_username());
@@ -43,21 +46,21 @@ if (!$freshStart && !$error) {
                         </div>
                         <div class="card-body">
                             <?php if (!$freshStart && !$error && !$techError) { ?>
-                                <p class="alert alert-success">Uw wachtwoord is gewijzigd...</p>
-                                <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2">Terug naar
+                                <p class="alert alert-success" id="success">Uw wachtwoord is gewijzigd...</p>
+                                <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                     index</a>
                             <?php } else {
                                 // We have a fresh start, or we've got an error
                                 if (!$freshStart && $error) { ?>
-                                    <p class="alert alert-danger">Uw wachtwoord kan niet worden gewijzigd omdat de wachtwoorden niet overeen komen of niet voldoen aan de complexiteitseisen.</p>
+                                    <p class="alert alert-danger" id="error">Uw wachtwoord kan niet worden gewijzigd omdat de wachtwoorden niet overeen komen of niet voldoen aan de complexiteitseisen.</p>
                                 <?php }
                                 if ($techError) { ?>
-                                    <p class="alert alert-danger">Er is een technische fout opgetreden bij het aanmaken van uw
+                                    <p class="alert alert-danger" id="technicalerror">Er is een technische fout opgetreden bij het aanmaken van uw
                                         account.</br>
                                         Probeer het later nogmaals, of neem contact op met de beheerder.</p>
                                 <?php } ?>
                                 <?php if($user->mustChangePasswordOnNextLogon()) { ?>
-                                    <p class="alert alert-info">U moet uw wachtwoord verplicht wijzigen voordat u verder kunt.</p>
+                                    <p class="alert alert-info" id="mustchangenotification">U moet uw wachtwoord verplicht wijzigen voordat u verder kunt.</p>
                                 <?php } ?>
                                 <form action="changepassword.php" method="post">
                                     <input type="hidden" name="username" value="<?php echo $user->get_username() ?>">
@@ -91,7 +94,7 @@ if (!$freshStart && !$error) {
                                         <input type="text" name="2facode" id="2facode" autocomplete="none"
                                                placeholder="2FA code" class="form-control">
                                     </div>
-                                    <input type="submit" value="Wijzig wachtwoord" class="btn btn-primary btn-block">
+                                    <input type="submit" value="Wijzig wachtwoord" class="btn btn-primary btn-block" id="submit">
                                 </form> <?php } ?>
                         </div>
                     </div>
@@ -106,9 +109,6 @@ include_once(dirname(__FILE__) . "/../includes/jsscripts.php");
     <script src="../js/calcstrength.js"></script>
     <script>
         $(document).ready(function () {
-            $usernamett = "Uw gebruikersnaam moet minimaal 5 tekens lang zijn.";
-            $('#username').tooltip({'trigger': 'focus', 'placement': 'top', 'html': true, 'title': $usernamett});
-
             $passwordtt = "<p><u>Wachtwoord complexiteitseisen</u>:</p><ul class=\"text-left\"><li>Tenminste 2 tekens van a-z en/of 0-9</li><li>Eén of meer speciale karakters: !@#$%^&*()~<>?</li><li>Minimaal 14 tekens lang</li></ul>";
             $('#password').tooltip({'trigger': 'focus', 'placement': 'top', 'html': true, 'title': $passwordtt});
         });

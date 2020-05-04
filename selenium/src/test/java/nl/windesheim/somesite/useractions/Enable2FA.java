@@ -25,12 +25,8 @@ public class Enable2FA {
 		Interactions.fillTextbox("//*[@id=\"password\"]", password);
 	}
 	
-	public static void fill2FAUsingValidSecret(String secret) {
-		Interactions.fill2FACode("//*[@id=\"2facode\"]", secret);
-	}
-	
-	public static void fill2FAUsingInvalidString(String fakecode) {
-		Interactions.fillTextbox("//*[@id=\"2facode\"]", fakecode);
+	public static void fill2FACode(String secret) {
+		Interactions.fillTextbox("//*[@id=\"2facode\"]", secret);
 	}
 	
 	public static void assertError(Boolean expected) {
