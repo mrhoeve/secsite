@@ -1,20 +1,33 @@
 package nl.windesheim.somesite;
 
 import nl.windesheim.somesite.database.Database;
+import nl.windesheim.somesite.docker.TestWithinDocker;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.useractions.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
+import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+
+import java.io.File;
 
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LoginLogout2FATest {
+public class LoginLogout2FATest extends TestWithinDocker {
+//	@ClassRule
+//	protected static DockerComposeContainer container =
+//			new DockerComposeContainer(
+//					new File("src/test/resources/docker/docker-compose-www.yml"))
+//					.withExposedService("www_1", 2080)
+//					.withExposedService("db_1", 2036, Wait.forLogMessage(".*\\[Server\\].*ready for connections.*", 1));
+	
 	private final String USERNAME = "admin";
 	private final String PASSWORD = "WelcomeAdmin01";
 	

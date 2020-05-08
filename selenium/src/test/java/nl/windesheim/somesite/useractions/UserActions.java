@@ -5,7 +5,7 @@ import nl.windesheim.somesite.webdriver.Webdriver;
 
 public class UserActions {
 	public static void navigateTo(String page) {
-		Webdriver.getInstance().getDriver().get(Settings.BASE_URL + page);
+		Webdriver.getInstance().getDriver().get(Settings.getInstance().getBaseUrl() + page);
 		Webdriver.getInstance().waitForPageLoad();
 	}
 }

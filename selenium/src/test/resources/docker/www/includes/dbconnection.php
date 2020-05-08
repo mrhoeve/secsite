@@ -20,13 +20,11 @@ Class SafePDO extends PDO {
     }
 
 }
-$mysql_host = getenv("MYSQLSRV") === false ? "localhost" : getenv("MYSQLSRV");
-//$mysql_port = getenv("MYSQLSRVPRT") === false ? "3306" : getenv("MYSQLSRVPRT");
+
+$mysql_host = "db";
 $mysql_database = "security";
 
 $PDO_DSN = "mysql:host=$mysql_host;dbname=$mysql_database";
-
-echo $PDO_DSN;
 
 // Credentials for read access
 $PDO_USER_RD = 'secread';
