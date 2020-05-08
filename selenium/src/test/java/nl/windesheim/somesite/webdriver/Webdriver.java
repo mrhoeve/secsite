@@ -16,7 +16,7 @@ public class Webdriver {
 	private final ChromeDriver driver;
 	
 	private Webdriver() {
-		String absolutePath = new File(LoginLogout2FATest.class.getClassLoader().getResource("chromedriver.exe").getFile()).getAbsolutePath();
+		String absolutePath = new File(Webdriver.class.getClassLoader().getResource("chromedriver.exe").getFile()).getAbsolutePath();
 		System.setProperty("webdriver.chrome.driver", absolutePath);
 		driver = new ChromeDriver(options());
 	}
@@ -61,6 +61,7 @@ public class Webdriver {
 		options.addArguments("--disable-dev-shm-usage"); //https://stackoverflow.com/a/50725918/1689770
 		options.addArguments("--disable-browser-side-navigation"); //https://stackoverflow.com/a/49123152/1689770
 		options.addArguments("--disable-gpu"); //https://stackoverflow.com/questions/51959986/how-to-solve-selenium-chromedriver-timed-out-receiving-message-from-renderer-exc
+		options.addArguments("--whitelisted-ips=''"); //https://stackoverflow.com/questions/40305669/selenium-webdriver-3-0-1-chromedriver-exe-2-25-whitelisted-ips/44629135
 		return options;
 	}
 }
