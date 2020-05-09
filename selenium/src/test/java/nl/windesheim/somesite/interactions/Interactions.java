@@ -5,6 +5,7 @@ import dev.samstevens.totp.code.HashingAlgorithm;
 import dev.samstevens.totp.exceptions.CodeGenerationException;
 import nl.windesheim.somesite.webdriver.Webdriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class Interactions {
 	public static void fillTextbox(String xPath, String fillWith) {
 		try {
-			Webdriver.getInstance().getDriver().findElement(By.xpath(xPath)).sendKeys(fillWith);
+			Webdriver.getInstance().getDriver().findElement(By.xpath(xPath)).sendKeys(Keys.chord(Keys.CONTROL, "a"), fillWith);
 		} catch (NoSuchElementException e) {
 			fail();
 		}

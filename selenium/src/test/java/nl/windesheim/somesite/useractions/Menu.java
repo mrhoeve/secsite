@@ -33,4 +33,9 @@ public class Menu {
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
+	public static void selectCreateOwnNewAccount() {
+		Interactions.performClick("//*[@id=\"createnewaccount\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
 }

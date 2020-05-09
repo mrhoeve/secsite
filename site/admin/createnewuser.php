@@ -1,33 +1,29 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
 setLevelToRoot("..");
-loadProgressCss();
 include_once(dirname(__FILE__) . "/../includes/header.php");
 
-// We can't create a user when someone is logged in
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-    header('Location: ..\index.php');
+if(!$user->hasPermission(PERMISSION_CREATE_ACCOUNT)) {
+    header('Location: selectuser.php');
 }
 
-$freshStart = !(isset($_POST['username']) || isset($_POST['firstname']) || isset($_POST['emailaddress']) || isset($_POST['password']) || isset($_POST['confirmpassword']));
+$freshStart = !(isset($_POST['username']) || isset($_POST['firstname']) || isset($_POST['emailaddress']) || isset($_POST['password']));
 
 $username = isset($_POST['username']) ? $_POST['username'] : '';
 $firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
 $emailaddress = isset($_POST['emailaddress']) ? $_POST['emailaddress'] : '';
-$passone = isset($_POST['password']) ? $_POST['password'] : '';
-$passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
+$password = isset($_POST['password']) ? $_POST['password'] : '';
 
 $emailaddressValid = UserHelper::isEmailAddressValid($emailaddress);
-$passwordsValid = UserHelper::arePasswordsValid($passone, $passtwo);
 $usernameValid = UserHelper::isUsernameValid($username);
 
-$error = !($usernameValid && $passwordsValid && $emailaddressValid && !empty($firstname));
+$error = !($usernameValid && $emailaddressValid && !empty($firstname));
 $techError = false;
 
 if (!$freshStart && !$error) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
     debugToConsole('New user created: ' . $createUser->toString());
-    $newUser = UserHelper::saveUser($createUser, $passone, false);
+    $newUser = UserHelper::saveUser($createUser, $password, false);
     if ($newUser->isEmpty()) $techError = true;
 } ?>
 
@@ -41,19 +37,18 @@ if (!$freshStart && !$error) {
                         </div>
                         <div class="card-body">
                             <?php if (!$freshStart && !$error && !$techError) { ?>
-                                <p id="success">Uw account is aangemaakt, u kunt er nu mee inloggen.</p>
-                                <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
+                                <p id="success">Account is aangemaakt.</p>
+                                <a href="<?php echo LEVEL ?>selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                     index</a>
                             <?php } else {
                                 // We have a fresh start, or we've got an error
                                 if (!$freshStart && $error) { ?>
                                     <div class="alert alert-danger" id="error">
-                                        <p>Uw account kan niet worden aangemaakt vanwege (één van) deze
+                                        <p>Het account kan niet worden aangemaakt vanwege (één van) deze
                                             redenen:</p>
                                         <ul>
                                             <li>Gebruikersnaam bestaat reeds.</li>
                                             <li>Ongeldig of reeds gebruikt emailadres.</li>
-                                            <li>Wachtwoorden komen niet overeen of voldoen niet aan de complexiteitseisen.
                                             </li>
                                         </ul>
                                     </div>
@@ -63,7 +58,7 @@ if (!$freshStart && !$error) {
                                         account.</br>
                                         Probeer het later nogmaals, of neem contact op met de beheerder.</p>
                                 <?php } ?>
-                                <form action="register.php" method="post">
+                                <form action="createnewuser.php" method="post">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" name="username" id="username" value="<?php echo $username ?>"
@@ -84,15 +79,6 @@ if (!$freshStart && !$error) {
                                         <input type="password" name="password" id="password" autocomplete="none"
                                                placeholder="Wachtwoord" class="form-control">
                                     </div>
-                                    <div class="form-group progress-form-group">
-                                        <progress max="100" value="0" id="strength" class="strengthmeter"></progress>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password">Bevestig uw wachtwoord</label>
-                                        <input type="password" name="confirmpassword" id="confirmpassword"
-                                               autocomplete="none"
-                                               placeholder="Bevestig uw wachtwoord" class="form-control">
-                                    </div>
                                     <input type="submit" value="Account aanmaken" class="btn btn-primary btn-block" id="submit">
                                 </form> <?php } ?>
                         </div>
@@ -108,11 +94,8 @@ include_once(dirname(__FILE__) . "/../includes/jsscripts.php");
     <script src="../js/calcstrength.js"></script>
     <script>
         $(document).ready(function () {
-            $usernamett = "Uw gebruikersnaam moet minimaal 5 tekens lang zijn.";
+            $usernamett = "Gebruikersnaam moet minimaal 5 tekens lang zijn.";
             $('#username').tooltip({'trigger': 'focus', 'placement': 'top', 'html': true, 'title': $usernamett});
-
-            $passwordtt = "<p><u>Wachtwoord complexiteitseisen</u>:</p><ul class=\"text-left\"><li>Tenminste 2 tekens van a-z en/of 0-9</li><li>Eén of meer speciale karakters: !@#$%^&*()~<>?</li><li>Minimaal 14 tekens lang</li></ul>";
-            $('#password').tooltip({'trigger': 'focus', 'placement': 'top', 'html': true, 'title': $passwordtt});
         });
 
     </script>

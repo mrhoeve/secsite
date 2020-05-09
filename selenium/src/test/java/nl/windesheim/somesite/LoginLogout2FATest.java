@@ -4,6 +4,7 @@ import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.useractions.*;
+import nl.windesheim.somesite.useractions.user.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,8 +16,7 @@ import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LoginLogout2FATest {
-	private final String USERNAME = "admin";
-	private final String PASSWORD = "WelcomeAdmin01";
+	private final String USERNAME = "testU";
 	
 	private User user;
 	
@@ -24,8 +24,8 @@ public class LoginLogout2FATest {
 	
 	@BeforeAll
 	void setUp() {
-		Database.getInstance().resetUserForLogin(USERNAME, PASSWORD);
-		user = new User(USERNAME, PASSWORD);
+		Database.getInstance().deleteUserIfExists(USERNAME);
+		user = new User(USERNAME);
 		driver = Webdriver.getInstance().getDriver();
 	}
 	
@@ -36,11 +36,75 @@ public class LoginLogout2FATest {
 	
 	@Test
 	public void SuccesvolLogin_Activeer2FA_Test() {
+		createUser();
 		login();
 		enable2FATest();
 		changePassword();
 		loguitEnLogin();
 		remove2FATest();
+	}
+	
+	public void createUser() {
+		String wrongUsername = "test";
+		String wrongEmail = "test@test";
+		String rightEmail = "test@test.com";
+		String goodNewPassword = "Az09!@#$%^&*(~<>?)";
+		String newPasswordWithError = "Az091@#$%^&*(~<>?)";
+		String notStrongEnoughPassword = "Az!@#$%^&*()";
+		
+		// Test verkeerde username
+		navigateTo("index.php");
+		Menu.selectCreateOwnNewAccount();
+		CreateNewUser.fillUsername(wrongUsername);
+		CreateNewUser.fillFirstname("first name");
+		CreateNewUser.fillEmail(rightEmail);
+		CreateNewUser.fillFirstNewPassword(goodNewPassword);
+		CreateNewUser.fillSecondNewPassword(goodNewPassword);
+		CreateNewUser.clickOnSubmitButton();
+		CreateNewUser.assertError(true);
+		CreateNewUser.assertSuccess(false);
+		
+		// Test verkeerd emailadres
+		CreateNewUser.fillUsername(user.getUsername());
+		CreateNewUser.fillFirstname("first name");
+		CreateNewUser.fillEmail(wrongEmail);
+		CreateNewUser.fillFirstNewPassword(goodNewPassword);
+		CreateNewUser.fillSecondNewPassword(goodNewPassword);
+		CreateNewUser.clickOnSubmitButton();
+		CreateNewUser.assertError(true);
+		CreateNewUser.assertSuccess(false);
+		
+		// Test tweemaal verkeerd wachtwoord
+		CreateNewUser.fillUsername(user.getUsername());
+		CreateNewUser.fillFirstname("first name");
+		CreateNewUser.fillEmail(rightEmail);
+		CreateNewUser.fillFirstNewPassword(notStrongEnoughPassword);
+		CreateNewUser.fillSecondNewPassword(notStrongEnoughPassword);
+		CreateNewUser.clickOnSubmitButton();
+		CreateNewUser.assertError(true);
+		CreateNewUser.assertSuccess(false);
+		
+		// Test eenmaal juist en eenmaal verkeerd wachtwoord
+		CreateNewUser.fillUsername(user.getUsername());
+		CreateNewUser.fillFirstname("first name");
+		CreateNewUser.fillEmail(rightEmail);
+		CreateNewUser.fillFirstNewPassword(goodNewPassword);
+		CreateNewUser.fillSecondNewPassword(newPasswordWithError);
+		CreateNewUser.clickOnSubmitButton();
+		CreateNewUser.assertError(true);
+		CreateNewUser.assertSuccess(false);
+		
+		// Test goede gegevens
+		CreateNewUser.fillUsername(user.getUsername());
+		CreateNewUser.fillFirstname("first name");
+		CreateNewUser.fillEmail(rightEmail);
+		CreateNewUser.fillFirstNewPassword(goodNewPassword);
+		CreateNewUser.fillSecondNewPassword(goodNewPassword);
+		CreateNewUser.clickOnSubmitButton();
+		CreateNewUser.assertError(false);
+		CreateNewUser.assertSuccess(true);
+		CreateNewUser.clickOnBackToIndexButton();
+		user.setPassword(goodNewPassword);
 	}
 	
 	private void login() {

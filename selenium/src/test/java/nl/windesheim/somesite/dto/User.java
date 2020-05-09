@@ -10,6 +10,11 @@ public class User {
 	private String password;
 	private String faSecret;
 	
+	public User(String username) {
+		this.username = username;
+		this.password = "";
+	}
+	
 	public User(String username, String password) {
 		this.username = username;
 		this.password = password;

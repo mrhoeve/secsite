@@ -51,8 +51,14 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                     <a href="<?php echo LEVEL ?>index.php" class="nav-link">Home</a>
                 </li>
                 <?php if (!$user->isEmpty() && ($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_CREATE_ACCOUNT) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT))) { ?>
-                    <li class="nav-item">
-                        <a href="<?php echo LEVEL ?>admin/selectuser.php" class="nav-link">Beheer accounts</a>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="accountmanagement">Accounts</a>
+                        <div class="dropdown-menu">
+                            <?php if($user->hasPermission(PERMISSION_CREATE_ACCOUNT)) { ?><a href="<?php echo LEVEL ?>admin/createnewuser.php" class="dropdown-item" id="createaccount">Maak nieuw account aan</a><?php } ?>
+                            <?php if($user->hasPermission(PERMISSION_RESET_PASSWORD) || $user->hasPermission(PERMISSION_READ_ACCOUNT) || $user->hasPermission(PERMISSION_UPDATE_ACCOUNT) || $user->hasPermission(PERMISSION_DELETE_ACCOUNT) || $user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?>
+                                <a href="<?php echo LEVEL ?>admin/selectuser.php" class="dropdown-item" id="manageaccounts">Beheer accounts</a>
+                            <?php } ?>
+                        </div>
                     </li>
                 <?php } ?>
                 <?php if (!$user->isEmpty()) { ?>
@@ -67,7 +73,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
                     </li>
                 <?php } else { ?>
                     <li class="nav-item">
-                        <a href="<?php echo LEVEL ?>user/register.php" class="nav-link">Maak een account aan</a>
+                        <a href="<?php echo LEVEL ?>user/register.php" class="nav-link" id="createnewaccount">Maak een account aan</a>
                     </li>
                     <li class="nav-item">
                         <a href="<?php echo LEVEL ?>user/login.php" class="nav-link"  id="login">Login</a>

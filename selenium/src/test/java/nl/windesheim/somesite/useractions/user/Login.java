@@ -1,4 +1,4 @@
-package nl.windesheim.somesite.useractions;
+package nl.windesheim.somesite.useractions.user;
 
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.webdriver.Webdriver;

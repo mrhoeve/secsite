@@ -27,6 +27,17 @@ public class Database {
 		return single_instance;
 	}
 	
+	public void deleteUserIfExists(String username) {
+		try (Connection connection = DriverManager.getConnection(DbUrl, Settings.MYSQL_USER, Settings.MYSQL_PASS);
+		     PreparedStatement statement = connection.prepareStatement("DELETE FROM user WHERE username = ?")) {
+			statement.setString(1, username);
+			statement.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
 	public Boolean setPasswordForUser(String username, String password) {
 		try (Connection connection = DriverManager.getConnection(DbUrl, Settings.MYSQL_USER, Settings.MYSQL_PASS);
 		     PreparedStatement statement = connection.prepareStatement("UPDATE user SET password = ? WHERE username = ?")) {

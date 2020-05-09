@@ -209,7 +209,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                         </tr>
                         </tfoot>
                     </table>
-                    <i class="fas fa-user-plus"></i>
                 </div>
             </div>
         </div>
