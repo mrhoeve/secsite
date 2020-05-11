@@ -10,17 +10,19 @@
 # Zorg er wel voor dat de credentials geldig zijn en de juiste rechten hebben op de te gebruiken database
 include_once "../site/includes/dbconnection.php";
 
+$pdoadmin = new SafePDO($PDO_DSN, "root", "M@rt1n@1801");
+
 # Lees het bestand in die gegenereerd is via MySQL Workbench
 $query = file_get_contents("create_db.sql");
 # Voer dit bestand in zijn geheel uit op de database
-$stmt = $pdosave->prepare($query);
+$stmt = $pdoadmin->prepare($query);
 if ($stmt->execute()) {
     echo "Tabellen zijn succesvol aangemaakt\n\nDe aanwezige wachtwoorden worden direct versleuteld...\n";
 
-    $stmt = $pdosave->prepare("select username, password from user");
+    $stmt = $pdoadmin->prepare("select username, password from user");
     $stmt->execute();
     $allUsers = $stmt->fetchAll();
-    $stmt = $pdosave->prepare("update user set password = :password where username = :username");
+    $stmt = $pdoadmin->prepare("update user set password = :password where username = :username");
     foreach ($allUsers as $user) {
         echo "Wachtwoord voor gebruiker {$user['username']} wordt geüpdated\n";
         $stmt->bindValue(":username", $user['username']);

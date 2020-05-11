@@ -45,6 +45,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                                         <input type="text" name="username" id="username" placeholder="Gebruikersnaam"
                                                class="form-control">
                                     </div>
+                                    <a href="requestresetpassword.php" class="btn btn-outline-warning btn-block" id="forgottenpassword">Wachtwoord vergeten? Klik hier...</a>
                                     <div class="form-group">
                                         <label for="password">Wachtwoord</label>
                                         <input type="password" name="password" id="password" autocomplete="none"
