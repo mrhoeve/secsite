@@ -1,8 +1,10 @@
 package nl.windesheim.somesite;
 
+import com.google.gson.Gson;
 import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
+import nl.windesheim.somesite.maildev.MaildevDto;
 import nl.windesheim.somesite.useractions.*;
 import nl.windesheim.somesite.useractions.user.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
@@ -11,6 +13,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
@@ -258,5 +265,24 @@ public class LoginLogout2FATest {
 		Remove2FA.assertSuccess(true);
 		user.setFaSecret("");
 		Remove2FA.clickOnBackToIndexButton();
+	}
+	
+	@Test
+	public void Test() {
+		String pattern = "^Wachtwoord reset link: <a href=\\\"http:\\/\\/.*\\/resetpassword\\.php\\?user=admin&code=[a-zA-Z0-9]{32}\\\">Reset password<\\/a>.*$";
+		try {
+		URL url = new URL("http://localhost:1080/email");
+		try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
+			MaildevDto[] dto = new Gson().fromJson(reader, MaildevDto[].class);
+			String user = dto[0].getHtml().split("user=")[1].split("&code=")[0];
+			String code = dto[0].getHtml().split("&code=")[1].split("\"")[0];
+			dto[0].getHtml().matches(pattern);
+			System.out.println(dto.length);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
 }

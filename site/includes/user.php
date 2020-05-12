@@ -135,6 +135,10 @@ class UserHelper
         return self::loadAndAuthenticateUser($username);
     }
 
+    public static function loadUserWith2FACheck($username, $facode) {
+        return self::loadAndAuthenticateUser($username, "", $facode, false, false, true);
+    }
+
     public static function authenticateUserWithoutLoggingIn($username, $password, $facode)
     {
         return self::loadAndAuthenticateUser($username, $password, $facode, true, false);
@@ -145,7 +149,7 @@ class UserHelper
         return self::loadAndAuthenticateUser($username, $password, $facode, true, true);
     }
 
-    private static function loadAndAuthenticateUser($username, $password = "", $facode = "", $performAuthentication = false, $loginInSession = false)
+    private static function loadAndAuthenticateUser($username, $password = "", $facode = "", $performAuthentication = false, $loginInSession = false, $checkfacode = false)
     {
         global $pdoread;
 
@@ -171,6 +175,11 @@ class UserHelper
                 // Do we have to perform the authentication? Then verify the password.
                 if ($performAuthentication === true) {
                     $user = self::authenticateUser($user, $password, $result['password'], $facode, $result['fasecret'], $loginInSession);
+                }
+                if($checkfacode === true) {
+                    if(!self::validFaCode($facode, $result['fasecret'])) {
+                        $user = new User();
+                    }
                 }
             } else {
                 $user = new User();
