@@ -1,15 +1,18 @@
 <?php
 include_once(dirname(__FILE__) . "/dbconnection.php");
 include_once(dirname(__FILE__) . "/definitions.php");
+use Psr\Log\LogLevel;
+
 
 function getSettingValue($key) {
     global $pdoread;
+    global $log;
 
-    debugToConsole("Requesting read of setting \"" . $key . "\"");
+    $log->log(LogLevel::INFO, "Requesting read of setting \"" . $key . "\"");
 
     // Check if we have a valid read connection
     if (!isset($pdoread)) {
-        die('Failed to setup a database connection');
+        $log->log(LogLevel::CRITICAL, 'Failed to setup a database connection');
     }
 
     // Prepare our SQL
@@ -17,12 +20,12 @@ function getSettingValue($key) {
         $stmt->bindParam(':keyname', $key);
         $stmt->execute();
         if ($stmt->rowCount() === 1) {
-            debugToConsole("Value for \"$key\" found.");
+            $log->log(LogLevel::INFO, "Value for \"$key\" found.");
             $result = $stmt->fetch();
             return $result['value'];
         }
         return "";
     } else {
-        die('Internal error setting up the database connection');
+        $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
     }
 }

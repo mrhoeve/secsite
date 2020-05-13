@@ -1,5 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
+use Psr\Log\LogLevel;
 setLevelToRoot("..");
 include_once(dirname(__FILE__) . "/../includes/header.php");
 
@@ -26,6 +27,7 @@ if (isset($_POST['username'])) {
         $facode = $_POST['2facode'];
         $ga = new PHPGangsta_GoogleAuthenticator();
         if ($ga->verifyCode($fasecret, $facode, 1)) {
+            $log->log(LogLevel::NOTICE, "2FA enabled and secret saved");
             UserHelper::save2FASecret($authenticatedUser, $fasecret);
         } else {
             $error = true;

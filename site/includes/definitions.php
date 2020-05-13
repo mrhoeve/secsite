@@ -4,23 +4,6 @@ session_start();
 include_once(dirname(__FILE__) . "/logger.php");
 use Psr\Log\LogLevel;
 
-function debugToConsole($output)
-{
-    global $log;
-    $log->log(LogLevel::INFO, $output);
-    if (DEVELOPMENT_DEBUG) {
-        // Always pass the output through a json_encode to ensure proper sanitation
-        $outputSanitized = json_encode($output);
-        // But we want to remove the first and last quotes, so let's check if there's a string to work with
-        if (strlen($outputSanitized) > 2) {
-            $outputSanitized = substr($outputSanitized, 1, strlen($outputSanitized) - 2);
-            $consoleLog = "<script>console.log('[DEVDEBUG] - " . $outputSanitized . "' );</script>";
-            echo $consoleLog;
-        }
-    }
-}
-
-
 define('DEVELOPMENT_DEBUG', true);
 
 define('ROLE_ADMINISTRATOR', 'Administrator');

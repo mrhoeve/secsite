@@ -1,5 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
+use Psr\Log\LogLevel;
 setLevelToRoot("..");
 loadProgressCss();
 changeOwnPassword();
@@ -38,7 +39,7 @@ if (!$freshStart) {
 }
 
 if (!$freshStart && !$error) {
-    debugToConsole('Password changed of user ' . $checkUser->get_username());
+    $log->log(LogLevel::NOTICE, 'Password changed of user ' . $checkUser->get_username());
     UserHelper::saveUser($checkUser, $passone, true);
     $user = UserHelper::authenticateAndLoginUser($checkUser->get_username(), $passone, $facode);
     if ($user->isEmpty()) $techError = true;

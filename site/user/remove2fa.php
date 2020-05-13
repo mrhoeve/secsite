@@ -1,5 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
+use Psr\Log\LogLevel;
 setLevelToRoot("..");
 include_once(dirname(__FILE__) . "/../includes/header.php");
 
@@ -22,6 +23,7 @@ if (isset($_POST['username'])) {
     // Make sure we have the correct user
     $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn($_POST['username'], $_POST['password'], $_POST['2facode']);
     if (!$authenticatedUser->isEmpty() && $curUser->get_username() === $authenticatedUser->get_username()) {
+        $log->log(LogLevel::INFO, "Removing 2FA");
         UserHelper::save2FASecret($authenticatedUser, null);
     } else {
         $error = true;

@@ -1,10 +1,13 @@
 <?php
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
 
 Class SafePDO extends PDO {
 
     public static function exception_handler($exception) {
+        global $log;
         // Output the exception details
-        die('Uncaught exception: ' . $exception->getMessage());
+        $log->log(LogLevel::CRITICAL, 'Uncaught exception: ' . $exception->getMessage());
     }
 
     public function __construct($dsn, $username='', $password='', $driver_options=array()) {

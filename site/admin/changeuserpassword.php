@@ -1,5 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/encodeduser.php");
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
 
 if(!$user->hasPermission(PERMISSION_RESET_PASSWORD)) {
     header('Location: selectuser.php');
@@ -12,7 +14,7 @@ $passwordToUse = isset($_POST['password']) ? trim($_POST['password']) : "";
 $curchangepwonl = $freshStart ? $retrievedUser->mustChangePasswordOnNextLogon() : isset($_POST['changepwonl']);
 
 if (!empty($passwordToUse)) {
-    debugToConsole('Password changed of user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'Password changed of user ' . $retrievedUser->get_username());
     $savedUser = UserHelper::saveUser($retrievedUser, $passwordToUse, true, $curchangepwonl);
     if ($savedUser->isEmpty()) {
         $techError = true;

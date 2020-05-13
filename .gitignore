@@ -3,3 +3,4 @@
 
 setup/erd.mwb.bak
 /selenium/target/**/*
+/site/logs/

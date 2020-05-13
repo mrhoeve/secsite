@@ -25,4 +25,4 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
 $log = new Logger('somesite');
-$log->pushHandler(new StreamHandler(__DIR__.'/../logs/somesite.log', Logger::DEBUG));
+$log->pushHandler(new StreamHandler(__DIR__.'/../logs/somesite' . date("ymd") . '.log', Logger::DEBUG));

@@ -1,0 +1,8 @@
+[2020-05-14T00:00:42.300288+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []
+[2020-05-14T00:00:42.300902+03:00] somesite.INFO: Requesting read of username "sdfsdf" [] []
+[2020-05-14T00:00:42.301217+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []
+[2020-05-14T00:00:42.302436+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []
+[2020-05-14T00:00:47.853733+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []
+[2020-05-14T00:00:47.854255+03:00] somesite.INFO: Requesting read of username "sdaf" [] []
+[2020-05-14T00:00:47.854558+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []
+[2020-05-14T00:00:47.855674+03:00] somesite.NOTICE: User class initialized user:  Username =   First name =   Email =   Has 2FA: false Role = Reguliere gebruiker  Permissions:  Must change password at next logon: false Account is disabled: false Timestamp:   [] []

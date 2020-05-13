@@ -1,5 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/encodeduser.php");
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
 
 if(!$user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) {
     header('Location: selectuser.php');
@@ -11,12 +13,13 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
 function loadRoles()
 {
     global $pdoread;
+    global $log;
 
-    debugToConsole("Loading all roles...");
+    $log->log(LogLevel::INFO, "Loading all roles...");
 
     // Check if we have a valid read connection
     if (!isset($pdoread)) {
-        die('Failed to setup a database connection');
+        $log->log(LogLevel::CRITICAL, 'Failed to setup a database connection');
     }
 
     $roles = [];
@@ -31,7 +34,7 @@ function loadRoles()
             }
         }
     } else {
-        die('Internal error setting up the database connection');
+        $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
     }
     return $roles;
 }

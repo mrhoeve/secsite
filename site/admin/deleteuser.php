@@ -1,5 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/encodeduser.php");
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
 
 if(!$user->hasPermission(PERMISSION_DELETE_ACCOUNT)) {
     header('Location: selectuser.php');
@@ -8,7 +10,7 @@ if(!$user->hasPermission(PERMISSION_DELETE_ACCOUNT)) {
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder gebruiker');
 
 if (!$freshStart) {
-    debugToConsole('Removing user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'Removing user ' . $retrievedUser->get_username());
     UserHelper::removeUser($retrievedUser);
 }
 

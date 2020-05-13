@@ -1,5 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/encodeduser.php");
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
 
 if(!$user->hasPermission(PERMISSION_RESET_TOTP)) {
     header('Location: selectuser.php');
@@ -8,7 +10,7 @@ if(!$user->hasPermission(PERMISSION_RESET_TOTP)) {
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder 2FA');
 
 if (!$freshStart) {
-    debugToConsole('Removing 2FA of user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'Removing 2FA of user ' . $retrievedUser->get_username());
     UserHelper::save2FASecret($retrievedUser, null);
 }
 

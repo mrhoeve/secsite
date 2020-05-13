@@ -3,6 +3,8 @@ include_once(dirname(__FILE__) . "/dbconnection.php");
 include_once(dirname(__FILE__) . "/definitions.php");
 include_once(dirname(__FILE__) . "/GoogleAuthenticator.php");
 
+use Psr\Log\LogLevel;
+
 class User
 {
     private $username;
@@ -29,6 +31,8 @@ class User
      */
     public function __construct($username = '', $firstName = '', $email = '', $has2fa = false, $role = '', array $permission = array(), $changepwonl = false, $disabled = false, $timestamp = null)
     {
+        global $log;
+
         $this->username = $username;
         $this->firstName = $firstName;
         $this->email = $email;
@@ -42,7 +46,7 @@ class User
         $this->disabled = boolval($disabled);
         $this->timestamp = $timestamp;
 
-        debugToConsole("User class initialized user: \n" . $this->toString());
+        $log->log(LogLevel::NOTICE,"User class initialized user: \n" . $this->toString());
     }
 
     public function get_username()
@@ -152,15 +156,16 @@ class UserHelper
     private static function loadAndAuthenticateUser($username, $password = "", $facode = "", $performAuthentication = false, $loginInSession = false, $checkfacode = false)
     {
         global $pdoread;
+        global $log;
 
-        debugToConsole("Requesting read of username \"" . $username . "\"");
+        $log->log(LogLevel::INFO, "Requesting read of username \"" . $username . "\"");
 
         if ($loginInSession) {
             $_SESSION[SESSION_LOGGEDIN] = FALSE;
         }
         // Check if we have a valid read connection
         if (!isset($pdoread)) {
-            die('Failed to setup a database connection');
+            $log->log(LogLevel::CRITICAL, 'Failed to setup a database connection');
         }
 
         $user = new User();
@@ -172,7 +177,7 @@ class UserHelper
             if ($stmt->rowCount() === 1) {
                 $result = $stmt->fetch();
                 if($result['username'] == $username) {
-                    debugToConsole("Match found in database with username \"$username\"");
+                    $log->log(LogLevel::INFO, "Match found in database with username \"$username\"");
                     // Account exists, save it to user $user
                     $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
                     // Do we have to perform the authentication? Then verify the password.
@@ -187,25 +192,26 @@ class UserHelper
                 }
             }
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
         return $user;
     }
 
     private static function authenticateUser($user, $password, $hashedPassword, $facode, $fasecret, $loginInSession)
     {
-        debugToConsole("Authentication requested");
+        global $log;
+        $log->log(LogLevel::INFO, "Authentication requested");
         if (password_verify($password, $hashedPassword) && self::validFaCode($facode, $fasecret)) {
-            debugToConsole("Password and 2FA matches with the stored credentials");
+            $log->log(LogLevel::INFO, "Password and 2FA matches with the stored credentials");
             if ($loginInSession) {
-                debugToConsole("Logging in in the session, as requested");
+                $log->log(LogLevel::INFO, "Logging in in the session, as requested");
                 // Authentication success! user has loggedin!
                 // Save the user to the session
                 $_SESSION[SESSION_LOGGEDIN] = TRUE;
                 $_SESSION[SESSION_USER] = serialize($user);
             }
         } else {
-            debugToConsole("Password and/or 2FA don't match the stored credentials, destroy the session");
+            $log->log(LogLevel::CRITICAL, "Password and/or 2FA don't match the stored credentials, destroy the session");
             // Authentication failed, make sure to return an empty user
             $user = new User();
             if ($loginInSession) {
@@ -284,6 +290,7 @@ class UserHelper
     private static function isEmailaddressRegistrered($emailaddress)
     {
         global $pdoread;
+        global $log;
 
         // Prepare our SQL
         if ($stmt = $pdoread->prepare('select u.email from user u where email = :email')) {
@@ -291,13 +298,14 @@ class UserHelper
             $stmt->execute();
             return $stmt->rowCount() === 1;
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
     }
 
     private static function isUsernameRegistrered($username)
     {
         global $pdoread;
+        global $log;
 
         // Prepare our SQL
         if ($stmt = $pdoread->prepare('select u.username from user u where username = :username')) {
@@ -305,7 +313,7 @@ class UserHelper
             $stmt->execute();
             return $stmt->rowCount() === 1;
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
     }
 
@@ -329,13 +337,14 @@ class UserHelper
     public static function saveUser(User $user, $password = "", $update = true, $changepwonl = false)
     {
         global $pdosave;
+        global $log;
         // Check if we have a valid save connection
         if (!isset($pdosave)) {
-            die('Failed to setup a database connection');
+            $log->log(LogLevel::CRITICAL, 'Failed to setup a database connection');
         }
         // Check if a password has been provided when a new account is being created
         if (!$update && !$password) {
-            die("Not all requirements to save the user information has been met.");
+            $log->log(LogLevel::CRITICAL, "Not all requirements to save the user information has been met.");
         }
         if ($update) {
             return self::saveExistingUser($user, $password, $changepwonl);
@@ -404,6 +413,7 @@ class UserHelper
     public static function removeUser(User $user)
     {
         global $pdosave;
+        global $log;
         $isCurrentUser = ($user->get_username() === UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']))->get_username());
         // Prepare our SQL
         if ($stmt = $pdosave->prepare('delete from user where username = :username')) {
@@ -414,7 +424,7 @@ class UserHelper
                 self::deleteSession();
             }
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
     }
 
@@ -422,6 +432,7 @@ class UserHelper
     public static function save2FASecret(User $user, $fasecret)
     {
         global $pdosave;
+        global $log;
         $isCurrentUser = ($user->get_username() === UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']))->get_username());
         // Prepare our SQL
         if ($stmt = $pdosave->prepare('update user set fasecret=:fasecret where username = :username')) {
@@ -433,15 +444,15 @@ class UserHelper
                 $_SESSION[SESSION_USER] = serialize(self::loadUser($user->get_username()));
             }
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
     }
 
     public static function validateUserAndTimestamp(User $user)
     {
         global $pdoread;
+        global $log;
         $username = $user->get_username();
-
 
         // Prepare our SQL
         if ($stmt = $pdoread->prepare('select u.timestamp from user u where username = :username')) {
@@ -449,12 +460,12 @@ class UserHelper
             $stmt->execute();
             $result = $stmt->fetch();
             if ($user->get_timestamp() != $result['timestamp']) {
-                debugToConsole("Validating user \"$username\" - Invalid timestamp, clearing user");
+                $log->log(LogLevel::CRITICAL, "Validating user \"$username\" - Invalid timestamp, clearing user");
                 self::deleteSession();
                 $user = new User();
             }
             if (!$user->isEmpty()) {
-                debugToConsole("Validating user \"$username\" - OK");
+                $log->log(LogLevel::INFO, "Validating user \"$username\" - OK");
             }
             return $user;
         } else {
@@ -466,12 +477,13 @@ class UserHelper
     public static function loadAllUsers()
     {
         global $pdoread;
+        global $log;
 
-        debugToConsole("Requesting list of all Users...");
+        $log->log(LogLevel::INFO, "Requesting list of all Users...");
 
         // Check if we have a valid read connection
         if (!isset($pdoread)) {
-            die('Failed to setup a database connection');
+            $log->log(LogLevel::CRITICAL,'Failed to setup a database connection');
         }
 
         $listUsers = [];
@@ -488,7 +500,7 @@ class UserHelper
                 }
             }
         } else {
-            die('Internal error setting up the database connection');
+            $log->log(LogLevel::CRITICAL, 'Internal error setting up the database connection');
         }
         return $listUsers;
     }
@@ -507,16 +519,17 @@ class UserHelper
     public
     static function checkCodeAndGetUser($encodedUser, $checkcode): User
     {
-        debugToConsole("Checking encoded user\nDecoding user...");
+        global $log;
+        $log->log(LogLevel::INFO, "Checking encoded user\nDecoding user...");
         $userWithSalt = self::checkcodeSalt() . $encodedUser;
         $calculatedCheckcode = md5($userWithSalt);
         if ($calculatedCheckcode != $checkcode) {
-            debugToConsole("Calculated checkcode doesn't match given checkcode -> return empty user");
+            $log->log(LogLevel::CRITICAL, "Calculated checkcode doesn't match given checkcode -> return empty user");
             return new User();
         }
         $serializedUser = base64_decode($encodedUser, true);
         $unserializedUser = self::unserializeUserObject(unserialize($serializedUser));
-        debugToConsole("Deserializing user " . $unserializedUser->get_username());
+        $log->log(LogLevel::INFO, "Deserializing user " . $unserializedUser->get_username());
         return $unserializedUser;
     }
 

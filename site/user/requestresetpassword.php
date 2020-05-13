@@ -8,6 +8,7 @@ require(dirname(__FILE__) . '/../includes/PHPMailer/PHPMailer.php');
 require(dirname(__FILE__) . '/../includes/PHPMailer/SMTP.php');
 
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
+use Psr\Log\LogLevel;
 include_once(dirname(__FILE__) . "/../includes/user.php");
 include_once(dirname(__FILE__) . "/../includes/setting.php");
 
@@ -24,7 +25,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
 
         $smtpPortSetting = getSettingValue("smtp_port");
         $smtpPort = empty($smtpPortSetting) ? 1025 : (int) $smtpPortSetting;
-        debugToConsole("Using SMTP port " . $smtpPort);
+        $log->log(LogLevel::INFO, "Using SMTP port " . $smtpPort);
 
         $user = UserHelper::loadUser($_POST['username']);
         if(!$user->isEmpty()) {
@@ -56,7 +57,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                 $mail->send();
                 echo 'Message has been sent';
             } catch (Exception $e) {
-                debugToConsole("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+                $log->log(LogLevel::CRITICAL, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
                 $error = true;
             }
         }

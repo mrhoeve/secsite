@@ -1,5 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
+use Psr\Log\LogLevel;
 setLevelToRoot("..");
 loadProgressCss();
 include_once(dirname(__FILE__) . "/../includes/header.php");
@@ -26,7 +27,7 @@ $techError = false;
 
 if (!$freshStart && !$error) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
-    debugToConsole('New user created: ' . $createUser->toString());
+    $log->log(LogLevel::INFO, 'New user created: ' . $createUser->toString());
     $newUser = UserHelper::saveUser($createUser, $passone, false);
     if ($newUser->isEmpty()) $techError = true;
 } ?>

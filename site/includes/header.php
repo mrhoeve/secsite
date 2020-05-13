@@ -1,9 +1,15 @@
 <?php
+include_once(dirname(__FILE__) . "/logger.php");
+use Psr\Log\LogLevel;
+
 if(!defined('LEVEL')) {
-    die("LEVEL not defined");
+    $log->log(LogLevel::CRITICAL, "LEVEL not defined");
 }
+
+include_once(dirname(__FILE__) . "/logger.php");
 include_once(dirname(__FILE__) . "/dbconnection.php");
 include_once(dirname(__FILE__) . "/user.php");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,11 +34,13 @@ $user = new User();
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     $user = UserHelper::validateUserAndTimestamp(unserialize($_SESSION['user']));
     if($user->isDisabled()) {
+        $log->log(LogLevel::NOTICE, "User " . $user->get_username() . " logged in, but is disabled... Logging out");
         UserHelper::deleteSession();
         $location = 'Location: ' . LEVEL . 'user/archiveduser.php';
         header($location);
     }
     if($user->mustChangePasswordOnNextLogon() && !defined('CHANGE_OWN_PASSWORD')) {
+        $log->log(LogLevel::NOTICE, "User " . $user->get_username() . " must change password");
         $location = 'Location: ' . LEVEL . 'user/changepassword.php';
         header($location);
     }

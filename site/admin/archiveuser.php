@@ -1,4 +1,7 @@
 <?php
+include_once(dirname(__FILE__) . "/../includes/logger.php");
+use Psr\Log\LogLevel;
+
 include_once(dirname(__FILE__) . "/encodeduser.php");
 
 if(!$user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) {
@@ -9,7 +12,7 @@ $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Opslaan');
 $curdisabled = $freshStart ? $retrievedUser->isDisabled() : isset($_POST['archivedAccount']);
 
 if (!$freshStart) {
-    debugToConsole('User ' . $retrievedUser->get_username() . $curdisabled ? ' is archived' : ' is not archived');
+    $log->log(LogLevel::INFO, 'User ' . $retrievedUser->get_username() . $curdisabled ? ' is archived' : ' is not archived');
     UserHelper::editUserArchiveStatus($retrievedUser, $curdisabled);
 }
 
