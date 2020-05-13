@@ -1,8 +1,13 @@
 <?php
 session_start();
 
+include_once(dirname(__FILE__) . "/logger.php");
+use Psr\Log\LogLevel;
+
 function debugToConsole($output)
 {
+    global $log;
+    $log->log(LogLevel::INFO, $output);
     if (DEVELOPMENT_DEBUG) {
         // Always pass the output through a json_encode to ensure proper sanitation
         $outputSanitized = json_encode($output);

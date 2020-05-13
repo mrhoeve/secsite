@@ -2,28 +2,36 @@ package nl.windesheim.somesite;
 
 import com.google.gson.Gson;
 import nl.windesheim.somesite.database.Database;
+import nl.windesheim.somesite.docker.KGenericContainer;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.maildev.MaildevDto;
 import nl.windesheim.somesite.useractions.*;
 import nl.windesheim.somesite.useractions.user.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
+import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LoginLogout2FATest {
-	private final String USERNAME = "testU";
+	@ClassRule
+	private static final KGenericContainer maildevContainer;
+	
+	private final String maildevURL = "http://localhost:" + maildevContainer.getMappedPort(80);
 	
 	private User user;
 	
@@ -31,6 +39,7 @@ public class LoginLogout2FATest {
 	
 	@BeforeAll
 	void setUp() {
+		String USERNAME = "testU";
 		Database.getInstance().deleteUserIfExists(USERNAME);
 		user = new User(USERNAME);
 		driver = Webdriver.getInstance().getDriver();
@@ -271,7 +280,7 @@ public class LoginLogout2FATest {
 	public void Test() {
 		String pattern = "^Wachtwoord reset link: <a href=\\\"http:\\/\\/.*\\/resetpassword\\.php\\?user=admin&code=[a-zA-Z0-9]{32}\\\">Reset password<\\/a>.*$";
 		try {
-		URL url = new URL("http://localhost:1080/email");
+		URL url = new URL(maildevURL);
 		try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
 			MaildevDto[] dto = new Gson().fromJson(reader, MaildevDto[].class);
 			String user = dto[0].getHtml().split("user=")[1].split("&code=")[0];
@@ -284,5 +293,15 @@ public class LoginLogout2FATest {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	static {
+		maildevContainer =
+				new KGenericContainer("maildev/maildev")
+				.withExposedPorts(80, 25)
+				.waitingFor(Wait.forHttp("/email").forPort(80))
+				.withStartupTimeout(Duration.of(60, ChronoUnit.SECONDS));
+		
+		maildevContainer.start();
 	}
 }

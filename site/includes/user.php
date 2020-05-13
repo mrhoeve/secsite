@@ -163,26 +163,28 @@ class UserHelper
             die('Failed to setup a database connection');
         }
 
+        $user = new User();
+
         // Prepare our SQL
         if ($stmt = $pdoread->prepare('select u.username, u.firstName, u.password, u.fasecret, u.email, u.role, u.changepwonl, u.disabled, GROUP_CONCAT(rp.permission SEPARATOR \',\') as permission, u.timestamp from user u left join rolepermission rp on rp.role=u.role where username = :username')) {
             $stmt->bindParam(':username', $username);
             $stmt->execute();
             if ($stmt->rowCount() === 1) {
-                debugToConsole("Match found in database with username \"$username\"");
                 $result = $stmt->fetch();
-                // Account exists, save it to user $user
-                $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
-                // Do we have to perform the authentication? Then verify the password.
-                if ($performAuthentication === true) {
-                    $user = self::authenticateUser($user, $password, $result['password'], $facode, $result['fasecret'], $loginInSession);
-                }
-                if($checkfacode === true) {
-                    if(!self::validFaCode($facode, $result['fasecret'])) {
-                        $user = new User();
+                if($result['username'] == $username) {
+                    debugToConsole("Match found in database with username \"$username\"");
+                    // Account exists, save it to user $user
+                    $user = new User($result['username'], $result['firstName'], $result['email'], !empty($result['fasecret']), $result['role'], explode(',', $result['permission']), $result['changepwonl'], $result['disabled'], $result['timestamp']);
+                    // Do we have to perform the authentication? Then verify the password.
+                    if ($performAuthentication === true) {
+                        $user = self::authenticateUser($user, $password, $result['password'], $facode, $result['fasecret'], $loginInSession);
+                    }
+                    if ($checkfacode === true) {
+                        if (!self::validFaCode($facode, $result['fasecret'])) {
+                            $user = new User();
+                        }
                     }
                 }
-            } else {
-                $user = new User();
             }
         } else {
             die('Internal error setting up the database connection');
