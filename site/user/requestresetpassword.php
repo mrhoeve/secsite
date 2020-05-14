@@ -77,9 +77,9 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                         </div>
                         <div class="card-body">
                             <?php if (!$freshStart) { ?>
-                                <p>Als uw gebruikersnaam bekend is ontvangt u een mail op het emailadres dat daarbij hoort.</p>
-                                <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2">Terug naar
-                                    index <span id="countdown"></span></a>
+                                <p id="message">Als uw gebruikersnaam bekend is ontvangt u een mail op het emailadres dat daarbij hoort.</p>
+                                <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="buttonBackToIndex">Terug naar
+                                    index</a>
                             <?php } else {
                                 // We have a fresh start, or we've got an error
                                 if ($error) { ?>
@@ -94,7 +94,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                                         <input type="text" name="username" id="username" placeholder="Gebruikersnaam"
                                                class="form-control">
                                     </div>
-                                    <input type="submit" value="Reset wachtwoord" class="btn btn-primary btn-block" id="buttonLogin">
+                                    <input type="submit" value="Reset wachtwoord" class="btn btn-primary btn-block" id="buttonResetPassword">
                                 </form>
                             <?php } ?>
                         </div>
@@ -105,30 +105,6 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     </section>
 
     <?php
-    include_once(dirname(__FILE__) . "/../includes/jsscripts.php");
-    if (!$freshStart && !$error) { ?>
-        <script type="text/javascript">
-
-            var seconds = 3;
-
-            function countdown() {
-                seconds = seconds - 1;
-                if (seconds < 0) {
-                    window.location = "<?php echo LEVEL ?>index.php";
-                } else {
-                    // Update remaining seconds
-                    document.getElementById("countdown").innerHTML = "(" + seconds + "...)";
-                    // Count down using javascript
-                    window.setTimeout("countdown()", 1000);
-                }
-            }
-
-            // Run countdown function
-            countdown();
-
-        </script>
-        <?php
-    }
 }
 include_once(dirname(__FILE__) . "/../includes/footer.php");
 ?>

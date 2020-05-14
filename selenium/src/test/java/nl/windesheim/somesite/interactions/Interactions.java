@@ -13,7 +13,9 @@ import org.openqa.selenium.NoSuchElementException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -55,11 +57,12 @@ public class Interactions {
 		}
 	}
 	
-	public String checkForEmailResetcodeForUser(String checkForUser) {
+	public static String checkForEmailResetcodeForUser(String host, String checkForUser) {
 		try {
-			URL url = new URL("http://localhost:1080/email");
+			URL url = new URL(host + "/email");
 			try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
 				MaildevDto[] dto = new Gson().fromJson(reader, MaildevDto[].class);
+				if(dto.length==0) return null;
 				String user = dto[0].getHtml().split("user=")[1].split("&code=")[0];
 				String code = dto[0].getHtml().split("&code=")[1].split("\"")[0];
 				Assertions.assertThat(user).isEqualTo(checkForUser);
@@ -72,5 +75,17 @@ public class Interactions {
 		}
 		fail();
 		return null;
+	}
+	
+	public static void removeAllEmail(String host) {
+		try {
+			URL url = new URL(host + "/email/all");
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("DELETE");
+			int responseCode = connection.getResponseCode();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
 	}
 }

@@ -33,4 +33,9 @@ public class Login {
 		Boolean currentUserPresent = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"currentUser\"]")).size() > 0;
 		assertThat(currentUserPresent).isTrue();
 	}
+	
+	public static void clickOnPasswordForgottenButton() {
+		Interactions.performClick("//*[@id=\"forgottenpassword\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
 }

@@ -1,14 +1,14 @@
 package nl.windesheim.somesite;
 
-import com.google.gson.Gson;
 import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.docker.KGenericContainer;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
-import nl.windesheim.somesite.maildev.MaildevDto;
-import nl.windesheim.somesite.useractions.*;
+import nl.windesheim.somesite.useractions.Menu;
+import nl.windesheim.somesite.useractions.UserActions;
 import nl.windesheim.somesite.useractions.user.*;
 import nl.windesheim.somesite.webdriver.Webdriver;
+import org.assertj.core.api.Assertions;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,17 +17,13 @@ import org.junit.jupiter.api.TestInstance;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LoginLogout2FATest {
+public class UseraccountActionsTest {
 	@ClassRule
 	private static final KGenericContainer maildevContainer;
 	
@@ -39,6 +35,7 @@ public class LoginLogout2FATest {
 	
 	@BeforeAll
 	void setUp() {
+		Database.getInstance().setSmtpPort(String.valueOf(maildevContainer.getMappedPort(25)));
 		String USERNAME = "testU";
 		Database.getInstance().deleteUserIfExists(USERNAME);
 		user = new User(USERNAME);
@@ -48,16 +45,19 @@ public class LoginLogout2FATest {
 	@AfterAll
 	void tearDown() {
 		driver.quit();
+		Database.getInstance().resetSmtpPort();
 	}
 	
 	@Test
-	public void SuccesvolLogin_Activeer2FA_Test() {
+	public void testAlleUserAccountActions() {
 		createUser();
 		login();
 		enable2FATest();
 		changePassword();
 		loguitEnLogin();
+		loguitEnResetLostPasswordWith2FA();
 		remove2FATest();
+		loguitEnResetLostPasswordWithout2FA();
 	}
 	
 	public void createUser() {
@@ -246,6 +246,76 @@ public class LoginLogout2FATest {
 		Login.assertSuccessfulLogin();
 	}
 	
+	private void loguitEnResetLostPasswordWith2FA() {
+		Interactions.removeAllEmail(maildevURL);
+		
+		String goodNewPassword = "Az09!@#$%^&*()~<?>";
+		String newPasswordWithError = "Az091@#$%^&*()~<?>";
+		String notStrongEnoughPassword = "Az!@#$%^&*()";
+		
+		String sendCode;
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		Menu.clickOnLogin();
+		Login.clickOnPasswordForgottenButton();
+		RequestPasswordReset.fillUsername(user.getUsername() + "fake");
+		RequestPasswordReset.clickOnResetPasswordButton();
+		RequestPasswordReset.assertMessagePresent();
+		RequestPasswordReset.clickOnBackToIndexButton();
+		sendCode = Interactions.checkForEmailResetcodeForUser(maildevURL, user.getUsername() + "fake");
+		Assertions.assertThat(sendCode).isNull();
+		
+		Menu.clickOnLogin();
+		Login.clickOnPasswordForgottenButton();
+		RequestPasswordReset.fillUsername(user.getUsername());
+		RequestPasswordReset.clickOnResetPasswordButton();
+		RequestPasswordReset.assertMessagePresent();
+		sendCode = Interactions.checkForEmailResetcodeForUser(maildevURL, user.getUsername());
+		Assertions.assertThat(sendCode).isNotNull();
+		
+		//
+		UserActions.navigateTo("user/resetpassword.php");
+		
+		// Geef goede resetcode en 2 keer een goed nieuw wachtwoord, maar geen TOTP code
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(goodNewPassword);
+		ResetPassword.fillSecondNewPassword(goodNewPassword);
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(true);
+		ResetPassword.assertSuccess(false);
+		
+		// Geef goede resetcode, goede TOTP code en 2 keer een te zwak wachtwoord
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(notStrongEnoughPassword);
+		ResetPassword.fillSecondNewPassword(notStrongEnoughPassword);
+		ResetPassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(true);
+		ResetPassword.assertSuccess(false);
+		
+		// Geef goede resetcode, goede TOTP code en 2 verschillende wachtwoorden
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(goodNewPassword);
+		ResetPassword.fillSecondNewPassword(newPasswordWithError);
+		ResetPassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(true);
+		ResetPassword.assertSuccess(false);
+		
+		// Geef goede resetcode, goede TOTP code en 2 keer een juist nieuw wachtwoord
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(goodNewPassword);
+		ResetPassword.fillSecondNewPassword(goodNewPassword);
+		ResetPassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(false);
+		ResetPassword.assertSuccess(true);
+		
+		user.setPassword(goodNewPassword);
+	}
 	
 	private void remove2FATest() {
 		String passwordWithError = "Az091@#$%^&*()~<>?";
@@ -276,23 +346,66 @@ public class LoginLogout2FATest {
 		Remove2FA.clickOnBackToIndexButton();
 	}
 	
-	@Test
-	public void Test() {
-		String pattern = "^Wachtwoord reset link: <a href=\\\"http:\\/\\/.*\\/resetpassword\\.php\\?user=admin&code=[a-zA-Z0-9]{32}\\\">Reset password<\\/a>.*$";
-		try {
-		URL url = new URL(maildevURL);
-		try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
-			MaildevDto[] dto = new Gson().fromJson(reader, MaildevDto[].class);
-			String user = dto[0].getHtml().split("user=")[1].split("&code=")[0];
-			String code = dto[0].getHtml().split("&code=")[1].split("\"")[0];
-			dto[0].getHtml().matches(pattern);
-			System.out.println(dto.length);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+	private void loguitEnResetLostPasswordWithout2FA() {
+		Interactions.removeAllEmail(maildevURL);
+		
+		String goodNewPassword = "Az09!@#$%^&*(~<?>)";
+		String newPasswordWithError = "Az091@#$%^&*(~<?>)";
+		String notStrongEnoughPassword = "Az!@#$%^&*()";
+		
+		String sendCode;
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		Menu.clickOnLogin();
+		Login.clickOnPasswordForgottenButton();
+		RequestPasswordReset.fillUsername(user.getUsername() + "fake");
+		RequestPasswordReset.clickOnResetPasswordButton();
+		RequestPasswordReset.assertMessagePresent();
+		RequestPasswordReset.clickOnBackToIndexButton();
+		sendCode = Interactions.checkForEmailResetcodeForUser(maildevURL, user.getUsername() + "fake");
+		Assertions.assertThat(sendCode).isNull();
+		
+		Menu.clickOnLogin();
+		Login.clickOnPasswordForgottenButton();
+		RequestPasswordReset.fillUsername(user.getUsername());
+		RequestPasswordReset.clickOnResetPasswordButton();
+		RequestPasswordReset.assertMessagePresent();
+		sendCode = Interactions.checkForEmailResetcodeForUser(maildevURL, user.getUsername());
+		Assertions.assertThat(sendCode).isNotNull();
+		
+		//
+		UserActions.navigateTo("user/resetpassword.php");
+		
+		// Geef goede resetcode en 2 keer een te zwak wachtwoord
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(notStrongEnoughPassword);
+		ResetPassword.fillSecondNewPassword(notStrongEnoughPassword);
+		ResetPassword.fill2FACode("");
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(true);
+		ResetPassword.assertSuccess(false);
+		
+		// Geef goede resetcode en 2 verschillende wachtwoorden
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(goodNewPassword);
+		ResetPassword.fillSecondNewPassword(newPasswordWithError);
+		ResetPassword.fill2FACode("");
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(true);
+		ResetPassword.assertSuccess(false);
+		
+		// Geef goede resetcode en 2 keer een juist nieuw wachtwoord
+		ResetPassword.fillUsername(user.getUsername());
+		ResetPassword.fillResetCode(sendCode);
+		ResetPassword.fillFirstNewPassword(goodNewPassword);
+		ResetPassword.fillSecondNewPassword(goodNewPassword);
+		ResetPassword.fill2FACode("");
+		ResetPassword.clickOnSubmitButton();
+		ResetPassword.assertError(false);
+		ResetPassword.assertSuccess(true);
+		
+		user.setPassword(goodNewPassword);
 	}
 	
 	static {

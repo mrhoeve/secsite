@@ -1,6 +1,5 @@
 package nl.windesheim.somesite.webdriver;
 
-import nl.windesheim.somesite.LoginLogout2FATest;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
