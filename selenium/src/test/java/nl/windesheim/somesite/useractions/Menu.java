@@ -9,6 +9,18 @@ public class Menu {
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
+	public static void selectAccountsAndClickOnMaakNieuwAccountAan() {
+		Interactions.performClick("//*[@id=\"createaccount\"]");
+		Interactions.performClick("//*[@id=\"logout\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+
+	public static void selectAccountsAndClickOnBeheerAccounts() {
+		Interactions.performClick("//*[@id=\"accountmanagement\"]");
+		Interactions.performClick("//*[@id=\"manageaccounts\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
 	public static void selectCurrentUserAndClickOnUitloggen() {
 		Interactions.performClick("//*[@id=\"currentUser\"]");
 		Interactions.performClick("//*[@id=\"logout\"]");

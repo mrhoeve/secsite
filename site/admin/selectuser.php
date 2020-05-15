@@ -58,32 +58,32 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                         </tr>
                         <tr>
                             <?php if ($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?>
-                                <th class="th-sm text-center">B
+                                <th class="th-sm text-center" id="columnArchivedUser">B
                                 </th><?php } ?>
-                            <th class="th-sm">Username
+                            <th class="th-sm" id="columnUsername">Username
                             </th>
                             <?php if ($user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?>
-                                <th class="th-sm">Naam
+                                <th class="th-sm" id="columnName">Naam
                                 </th>
-                                <th class="th-sm">Emailadres
+                                <th class="th-sm" id="columnEmail">Emailadres
                                 </th>
-                                <th class="th-sm">Rol
+                                <th class="th-sm" id="columnRole">Rol
                                 </th><?php }
                             if ($aantalActiekolommen > 0) {
                                 if ($user->hasPermission(PERMISSION_UPDATE_ACCOUNT)) { ?>
-                                    <th class="th-sm text-center">E
+                                    <th class="th-sm text-center" id="columnEditAccount">E
                                     </th><?php }
                                 if ($user->hasPermission(PERMISSION_RESET_PASSWORD)) { ?>
-                                    <th class="th-sm text-center">C
+                                    <th class="th-sm text-center" id="columnResetPassword">C
                                     </th><?php }
                                 if ($user->hasPermission(PERMISSION_RESET_TOTP)) { ?>
-                                    <th class="th-sm text-center">2
+                                    <th class="th-sm text-center" id="columnResetTOTP">2
                                     </th><?php }
                                 if ($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?>
-                                    <th class="th-sm text-center">A
+                                    <th class="th-sm text-center" id="columnArchiveAccount">A
                                     </th><?php }
                                 if ($user->hasPermission(PERMISSION_DELETE_ACCOUNT)) { ?>
-                                    <th class="th-sm text-center">D
+                                    <th class="th-sm text-center" id="columnRemoveAccount">D
                                     </th><?php }
                             } ?>
                         </tr>
@@ -109,7 +109,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                         <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                         <button type="submit" name="submit" value="submit"
                                                 class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
-                                                data-placement="bottom" title="Bewerk deze gebruiker"><i
+                                                data-placement="bottom" title="Bewerk deze gebruiker" id="edituser-<?php echo $selUser->get_username() ?>"><i
                                                     class="fas fa-user-edit"></i>
                                         </button>
                                     </form>
@@ -121,7 +121,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                         <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                         <button type="submit" name="submit" value="submit"
                                                 class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
-                                                data-placement="bottom" title="Wijzig wachtwoord"><i
+                                                data-placement="bottom" title="Wijzig wachtwoord" id="changepassword-<?php echo $selUser->get_username() ?>"><i
                                                     class="fas fa-key"></i>
                                         </button>
                                     </form>
@@ -134,7 +134,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                                 <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                                 <button type="submit" name="submit" value="submit"
                                                         class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
-                                                        data-placement="bottom" title="Reset 2FA"><i
+                                                        data-placement="bottom" title="Reset 2FA" id="reset2fa-<?php echo $selUser->get_username() ?>"><i
                                                             class="fas fa-qrcode"></i>
                                                 </button>
                                             </form>
@@ -142,7 +142,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                     <?php } else { ?>
                                         <td class="text-center">
                                             <button type="submit" name="submit" value="submit"
-                                                    class="btn btn-sm btn-secondary" disabled><i
+                                                    class="btn btn-sm btn-secondary" disabled  id="reset2fadisabled-<?php echo $selUser->get_username() ?>"><i
                                                         class="fas fa-qrcode"></i>
                                             </button>
                                         </td>
@@ -155,7 +155,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                         <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                         <button type="submit" name="submit" value="submit"
                                                 class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
-                                                data-placement="bottom" title="Archiveer gebruiker"><i
+                                                data-placement="bottom" title="Archiveer gebruiker" id="archiveuser-<?php echo $selUser->get_username() ?>"><i
                                                     class="fas fa-user-slash"></i>
                                         </button>
                                     </form>
@@ -167,7 +167,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                                         <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                         <button type="submit" name="submit" value="submit"
                                                 class="btn btn-sm btn-outline-primary" data-toggle="tooltip"
-                                                data-placement="bottom" title="Verwijder gebruiker"><i
+                                                data-placement="bottom" title="Verwijder gebruiker" id="deleteuser-<?php echo $selUser->get_username() ?>"><i
                                                     class="fas fa-user-times"></i>
                                         </button>
                                     </form>

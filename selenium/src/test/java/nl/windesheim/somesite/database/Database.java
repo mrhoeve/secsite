@@ -147,9 +147,13 @@ public class Database {
 	}
 	
 	public Boolean resetUserForLogin(String username, String password) {
+		return resetUserForLogin(username, password, false);
+	}
+	
+	public Boolean resetUserForLogin(String username, String password, Boolean setChangePwONL) {
 		assertThat(setPasswordForUser(username, password)).isTrue();
 		assertThat(setDisabledForUser(username, false)).isTrue();
-		assertThat(setChangePwONLForUser(username, false)).isTrue();
+		assertThat(setChangePwONLForUser(username, setChangePwONL)).isTrue();
 		assertThat(remove2FASecret(username)).isTrue();
 		return true;
 	}
