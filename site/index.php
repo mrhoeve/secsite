@@ -32,7 +32,7 @@ include_once(dirname(__FILE__) . "/includes/header.php");
                     Omnis, dolor.</p>
             </div>
             <div class="col-md-6">
-                <img src="https://source.unsplash.com/random/700x700/?technology" alt=""
+                <img src="./img/photo.jpg" alt=""
                      class="img-fluid rounded-circle d-none d-md-block about-img">
             </div>
         </div>

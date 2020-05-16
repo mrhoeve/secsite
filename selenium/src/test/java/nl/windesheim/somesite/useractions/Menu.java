@@ -10,8 +10,8 @@ public class Menu {
 	}
 	
 	public static void selectAccountsAndClickOnMaakNieuwAccountAan() {
+		Interactions.performClick("//*[@id=\"accountmanagement\"]");
 		Interactions.performClick("//*[@id=\"createaccount\"]");
-		Interactions.performClick("//*[@id=\"logout\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
 

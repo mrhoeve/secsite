@@ -7,14 +7,9 @@ import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.useractions.Menu;
 import nl.windesheim.somesite.useractions.UserActions;
 import nl.windesheim.somesite.useractions.user.*;
-import nl.windesheim.somesite.webdriver.Webdriver;
 import org.assertj.core.api.Assertions;
 import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
@@ -23,43 +18,43 @@ import java.time.temporal.ChronoUnit;
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UseraccountActionsTest {
 	@ClassRule
-	private static final KGenericContainer maildevContainer;
+	public static final KGenericContainer maildevContainer;
 	
 	private final String maildevURL = "http://localhost:" + maildevContainer.getMappedPort(80);
 	
-	private User user;
-	
-	private RemoteWebDriver driver;
+	private final User user=new User("testU");
 	
 	@BeforeAll
 	void setUp() {
 		Database.getInstance().setSmtpPort(String.valueOf(maildevContainer.getMappedPort(25)));
-		String USERNAME = "testU";
-		Database.getInstance().deleteUserIfExists(USERNAME);
-		user = new User(USERNAME);
-		driver = Webdriver.getInstance().getDriver();
+		Database.getInstance().deleteUserIfExists(user.getUsername());
 	}
 	
 	@AfterAll
 	void tearDown() {
-		driver.quit();
 		Database.getInstance().resetSmtpPort();
 	}
 	
-	@Test
-	public void testAlleUserAccountActions() {
-		createUser();
-		login();
-		enable2FATest();
-		changePassword();
-		loguitEnLogin();
-		loguitEnResetLostPasswordWith2FA();
-		remove2FATest();
-		loguitEnResetLostPasswordWithout2FA();
-	}
+//	@Test
+//	@Ignore
+//	public void testAlleUserAccountActions() {
+//		createUser();
+//		login();
+//		enable2FATest();
+//		changePassword();
+//		loguitEnLogin();
+//		loguitEnResetLostPasswordWith2FA();
+//		remove2FATest();
+//		loguitEnResetLostPasswordWithout2FA();
+//
+//		Database.getInstance().resetSmtpPort();
+//	}
 	
+	@Order(1)
+	@Test
 	public void createUser() {
 		String wrongUsername = "test";
 		String wrongEmail = "test@test";
@@ -123,7 +118,9 @@ public class UseraccountActionsTest {
 		user.setPassword(goodNewPassword);
 	}
 	
-	private void login() {
+	@Test
+	@Order(2)
+	public void login() {
 		navigateTo("index.php");
 		Menu.clickOnLogin();
 		// Foute login 1
@@ -143,7 +140,9 @@ public class UseraccountActionsTest {
 		Login.assertSuccessfulLogin();
 	}
 	
-	private void enable2FATest() {
+	@Order(3)
+	@Test
+	public void enable2FATest() {
 		String secret;
 		
 		navigateTo("index.php");
@@ -175,7 +174,9 @@ public class UseraccountActionsTest {
 		Enable2FA.clickOnBackToIndexButton();
 	}
 	
-	private void changePassword() {
+	@Order(4)
+	@Test
+	public void changePassword() {
 		String goodNewPassword = "Az09!@#$%&*()<>?";
 		String newPasswordWithError = "Az091@#$%&*()<>?";
 		String notStrongEnoughPassword = "Az!@#$%&*()";
@@ -227,7 +228,9 @@ public class UseraccountActionsTest {
 		ChangePassword.clickOnBackToIndexButton();
 	}
 	
-	private void loguitEnLogin() {
+	@Order(5)
+	@Test
+	public void loguitEnLogin() {
 		Menu.selectCurrentUserAndClickOnUitloggen();
 		Menu.clickOnLogin();
 		Login.fillCredentials(user.getUsername(), user.getPassword());
@@ -246,7 +249,9 @@ public class UseraccountActionsTest {
 		Login.assertSuccessfulLogin();
 	}
 	
-	private void loguitEnResetLostPasswordWith2FA() {
+	@Order(6)
+	@Test
+	public void loguitEnResetLostPasswordWith2FA() {
 		Interactions.removeAllEmail(maildevURL);
 		
 		String goodNewPassword = "Az09!@#$%&*()<?>";
@@ -317,7 +322,9 @@ public class UseraccountActionsTest {
 		user.setPassword(goodNewPassword);
 	}
 	
-	private void remove2FATest() {
+	@Order(7)
+	@Test
+	public void remove2FATest() {
 		String passwordWithError = "Az091@#$%&*()<>?";
 		
 		Menu.selectCurrentUserAndClickOn2FAVerwijderen();
@@ -346,7 +353,9 @@ public class UseraccountActionsTest {
 		Remove2FA.clickOnBackToIndexButton();
 	}
 	
-	private void loguitEnResetLostPasswordWithout2FA() {
+	@Order(8)
+	@Test
+	public void loguitEnResetLostPasswordWithout2FA() {
 		Interactions.removeAllEmail(maildevURL);
 		
 		String goodNewPassword = "Az09!@#$%&*(<?>)";

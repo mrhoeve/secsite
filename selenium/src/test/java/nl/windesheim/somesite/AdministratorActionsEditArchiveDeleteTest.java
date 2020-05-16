@@ -4,265 +4,142 @@ import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.useractions.Menu;
+import nl.windesheim.somesite.useractions.admin.AdminCreateNewUser;
+import nl.windesheim.somesite.useractions.admin.EditUser;
 import nl.windesheim.somesite.useractions.admin.SelectUser;
-import nl.windesheim.somesite.useractions.user.*;
-import nl.windesheim.somesite.webdriver.Webdriver;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import nl.windesheim.somesite.useractions.user.ChangePassword;
+import nl.windesheim.somesite.useractions.user.Enable2FA;
+import nl.windesheim.somesite.useractions.user.Login;
+import org.junit.Before;
+import org.junit.jupiter.api.*;
 
 import static nl.windesheim.somesite.useractions.UserActions.navigateTo;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AdministratorActionsEditArchiveDeleteTest {
-	private User user;
-	private User regularUser = new User("testU");
-	
-	private RemoteWebDriver driver;
+	private final User adminUser = new User("admin", "WelcomeAdmin01");
+	private final User regularUser = new User("testU");
 	
 	@BeforeAll
 	void setUp() {
-		// User admin heeft Nieuw, Bewerk, Archiveer en Verwijer rechten
-		String username = "admin";
-		String password = "WelcomeAdmin01";
-		Database.getInstance().resetUserForLogin(username, password, true);
+		// User admin heeft Nieuw, Bewerk, Archiveer en Verwijder rechten
+		Database.getInstance().resetUserForLogin(adminUser.getUsername(), adminUser.getPassword(), true);
 		Database.getInstance().deleteUserIfExists(regularUser.getUsername());
-		user = new User(username, password);
-		driver = Webdriver.getInstance().getDriver();
 	}
 	
-	@AfterAll
-	void tearDown() {
-		driver.quit();
-	}
-	
+	@Order(1)
 	@Test
-	public void testAlleUserAccountActions() {
-		loginAsAdminAndMandatoryChangePassword();
-		assessBeheerAccounts();
-//		login();
-//		enable2FATest();
-//		changePassword();
-//		loguitEnLogin();
-//		loguitEnResetLostPasswordWith2FA();
-//		remove2FATest();
-//		loguitEnResetLostPasswordWithout2FA();
-	}
-	
-	private void loginAsAdminAndMandatoryChangePassword() {
+	public void loginAsAdminAndMandatoryChangePassword() {
 		String goodNewPassword = "Az09!@#$%&*()<>?";
 		
-		navigateTo("index.php");
-		Menu.clickOnLogin();
-
-		Login.fillCredentials(user.getUsername(), user.getPassword());
-		Login.clickOnLoginButton();
-		
-		ChangePassword.assertMustChange(true);
-		ChangePassword.fillCurrentPassword(user.getPassword());
-		ChangePassword.fillFirstNewPassword(goodNewPassword);
-		ChangePassword.fillSecondNewPassword(goodNewPassword);
-		ChangePassword.clickOnSubmitButton();
-		ChangePassword.assertMustChange(false);
-		ChangePassword.assertError(false);
-		ChangePassword.assertSuccess(true);
-		
-		user.setPassword(goodNewPassword);
-		
-		ChangePassword.clickOnBackToIndexButton();
+		loginAsUser(adminUser,false);
+		mandatoryChangePasswordOfUser(adminUser, goodNewPassword);
 	}
 	
+	@Order(2)
+	@Test
 	public void assessBeheerAccounts() {
 		Menu.selectAccountsAndClickOnBeheerAccounts();
 		SelectUser.assertAvailableColumns(true, true, true, true, true, false, false, true, true);
 	}
 	
+	@Order(3)
+	@Test
 	public void createUser() {
+		Menu.selectAccountsAndClickOnMaakNieuwAccountAan();
 		String wrongUsername = "test";
 		String wrongEmail = "test@test";
 		String rightEmail = "test@test.com";
-		String goodNewPassword = "Az09!@#$%&*(<>?)";
-		String newPasswordWithError = "Az091@#$%&*(<>?)";
-		String notStrongEnoughPassword = "Az!@#$%&*()";
+		String normallyNotStrongEnoughPassword = "Az!@#$%&*()";
 		
 		// Test verkeerde username
-		navigateTo("index.php");
-		Menu.selectCreateOwnNewAccount();
-		CreateNewUser.fillUsername(wrongUsername);
-		CreateNewUser.fillFirstname("first name");
-		CreateNewUser.fillEmail(rightEmail);
-		CreateNewUser.fillFirstNewPassword(goodNewPassword);
-		CreateNewUser.fillSecondNewPassword(goodNewPassword);
-		CreateNewUser.clickOnSubmitButton();
-		CreateNewUser.assertError(true);
-		CreateNewUser.assertSuccess(false);
+		AdminCreateNewUser.fillUsername(wrongUsername);
+		AdminCreateNewUser.fillFirstname("first name");
+		AdminCreateNewUser.fillEmail(rightEmail);
+		AdminCreateNewUser.fillNewPassword(normallyNotStrongEnoughPassword);
+		AdminCreateNewUser.clickOnSubmitButton();
+		AdminCreateNewUser.assertError(true);
+		AdminCreateNewUser.assertSuccess(false);
 		
 		// Test verkeerd emailadres
-		CreateNewUser.fillUsername(user.getUsername());
-		CreateNewUser.fillFirstname("first name");
-		CreateNewUser.fillEmail(wrongEmail);
-		CreateNewUser.fillFirstNewPassword(goodNewPassword);
-		CreateNewUser.fillSecondNewPassword(goodNewPassword);
-		CreateNewUser.clickOnSubmitButton();
-		CreateNewUser.assertError(true);
-		CreateNewUser.assertSuccess(false);
+		AdminCreateNewUser.fillUsername(regularUser.getUsername());
+		AdminCreateNewUser.fillFirstname("first name");
+		AdminCreateNewUser.fillEmail(wrongEmail);
+		AdminCreateNewUser.fillNewPassword(normallyNotStrongEnoughPassword);
+		AdminCreateNewUser.clickOnSubmitButton();
+		AdminCreateNewUser.assertError(true);
+		AdminCreateNewUser.assertSuccess(false);
 		
-		// Test tweemaal verkeerd wachtwoord
-		CreateNewUser.fillUsername(user.getUsername());
-		CreateNewUser.fillFirstname("first name");
-		CreateNewUser.fillEmail(rightEmail);
-		CreateNewUser.fillFirstNewPassword(notStrongEnoughPassword);
-		CreateNewUser.fillSecondNewPassword(notStrongEnoughPassword);
-		CreateNewUser.clickOnSubmitButton();
-		CreateNewUser.assertError(true);
-		CreateNewUser.assertSuccess(false);
+		AdminCreateNewUser.fillUsername(regularUser.getUsername());
+		AdminCreateNewUser.fillFirstname("first name");
+		AdminCreateNewUser.fillEmail(rightEmail);
+		AdminCreateNewUser.fillNewPassword(normallyNotStrongEnoughPassword);
+		AdminCreateNewUser.clickOnSubmitButton();
+		AdminCreateNewUser.assertError(false);
+		AdminCreateNewUser.assertSuccess(true);
 		
-		// Test eenmaal juist en eenmaal verkeerd wachtwoord
-		CreateNewUser.fillUsername(user.getUsername());
-		CreateNewUser.fillFirstname("first name");
-		CreateNewUser.fillEmail(rightEmail);
-		CreateNewUser.fillFirstNewPassword(goodNewPassword);
-		CreateNewUser.fillSecondNewPassword(newPasswordWithError);
-		CreateNewUser.clickOnSubmitButton();
-		CreateNewUser.assertError(true);
-		CreateNewUser.assertSuccess(false);
-		
-		// Test goede gegevens
-		CreateNewUser.fillUsername(user.getUsername());
-		CreateNewUser.fillFirstname("first name");
-		CreateNewUser.fillEmail(rightEmail);
-		CreateNewUser.fillFirstNewPassword(goodNewPassword);
-		CreateNewUser.fillSecondNewPassword(goodNewPassword);
-		CreateNewUser.clickOnSubmitButton();
-		CreateNewUser.assertError(false);
-		CreateNewUser.assertSuccess(true);
-		CreateNewUser.clickOnBackToIndexButton();
-		user.setPassword(goodNewPassword);
+		AdminCreateNewUser.clickOnBackToIndexButton();
+		regularUser.setPassword(normallyNotStrongEnoughPassword);
 	}
 	
-	private void login() {
+	@Order(4)
+	@Test
+	public void loginAsNewlyCreatedUser() {
+		Menu.selectCurrentUserAndClickOnUitloggen();
 		navigateTo("index.php");
 		Menu.clickOnLogin();
-		// Foute login 1
-		Login.fillCredentials(user.getUsername(), user.getPassword());
-		Login.fill2FACode("123456");
-		Login.clickOnLoginButton();
-		Login.assertError(true);
-		
-		// Foute login 2
-		Login.fillCredentials(user.getUsername(), "userGetPassword()");
-		Login.clickOnLoginButton();
-		Login.assertError(true);
-		
-		Login.fillCredentials(user.getUsername(), user.getPassword());
+		Login.fillCredentials(regularUser.getUsername(), regularUser.getPassword());
 		Login.clickOnLoginButton();
 		Login.assertError(false);
 		Login.assertSuccessfulLogin();
+		
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		loginAsUser(adminUser, true);
 	}
 	
-	private void enable2FATest() {
-		String secret;
+	@Order(5)
+	@Test
+	public void editUser() {
+		String goodNewPassword = "Az90!@#$%&*()<>?";
 		
+		Menu.selectAccountsAndClickOnBeheerAccounts();
+		SelectUser.clickOnEditUserButton(regularUser.getUsername());
+		EditUser.setChangePwONL(true);
+		EditUser.clickOnSave();
+		EditUser.assertSuccess(true);
+		Assertions.assertTrue(EditUser.getCurrentStateOfChangePwONL());
+		
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		
+		loginAsUser(regularUser, false);
+		mandatoryChangePasswordOfUser(regularUser, goodNewPassword);
+		
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		loginAsUser(adminUser, true);
+	}
+	
+	private void loginAsUser(User logInAsUser, Boolean assertSuccess) {
 		navigateTo("index.php");
-		Menu.selectCurrentUserAndClickOnEnable2FA();
+		Menu.clickOnLogin();
 		
-		// Eerst, verkeerd wachtwoord met juiste 2FA code
-		secret = Enable2FA.currentSecret();
-		Enable2FA.fillPassword(user.getPassword() + "1");
-		Enable2FA.fill2FACode(Interactions.calculate2FACode(secret));
-		Enable2FA.clickOnSubmitButton();
-		Enable2FA.assertError(true);
-		Enable2FA.assertSuccess(false);
-		
-		// Daarna, juist wachtwoord met verkeerde 2FA code
-		Enable2FA.fillPassword(user.getPassword());
-		Enable2FA.fill2FACode("1234567");
-		Enable2FA.clickOnSubmitButton();
-		Enable2FA.assertError(true);
-		Enable2FA.assertSuccess(false);
-		
-		// Tot slot, met juiste wachtwoord en code
-		secret = Enable2FA.currentSecret();
-		user.setFaSecret(secret);
-		Enable2FA.fillPassword(user.getPassword());
-		Enable2FA.fill2FACode(Interactions.calculate2FACode(secret));
-		Enable2FA.clickOnSubmitButton();
-		Enable2FA.assertError(false);
-		Enable2FA.assertSuccess(true);
-		Enable2FA.clickOnBackToIndexButton();
+		Login.fillCredentials(logInAsUser.getUsername(), logInAsUser.getPassword());
+		Login.clickOnLoginButton();
+		if (assertSuccess) Login.assertSuccessfulLogin();
 	}
 	
-	private void changePassword() {
-		String goodNewPassword = "Az09!@#$%&*()<>?";
-		String newPasswordWithError = "Az091@#$%&*()<>?";
-		String notStrongEnoughPassword = "Az!@#$%&*()";
-		
-		Menu.selectCurrentUserAndClickOnWijzigWachtwoord();
-		ChangePassword.assertMustChange(false);
-		
-		// Geef goed huidig wachtwoord en 2 keer een goed nieuw wachtwoord, maar geen TOTP code
-		ChangePassword.fillCurrentPassword(user.getPassword());
-		ChangePassword.fillFirstNewPassword(goodNewPassword);
-		ChangePassword.fillSecondNewPassword(goodNewPassword);
-		ChangePassword.clickOnSubmitButton();
-		ChangePassword.assertMustChange(false);
-		ChangePassword.assertError(true);
-		ChangePassword.assertSuccess(false);
-		
-		// Geef goed huidig wachtwoord, goede TOTP code en 2 keer een te zwak wachtwoord
-		ChangePassword.fillCurrentPassword(user.getPassword());
-		ChangePassword.fillFirstNewPassword(notStrongEnoughPassword);
-		ChangePassword.fillSecondNewPassword(notStrongEnoughPassword);
-		ChangePassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
-		ChangePassword.clickOnSubmitButton();
-		ChangePassword.assertMustChange(false);
-		ChangePassword.assertError(true);
-		ChangePassword.assertSuccess(false);
-		
-		// Geef goed huidig wachtwoord, goede TOTP code en 2 verschillende wachtwoorden
-		ChangePassword.fillCurrentPassword(user.getPassword());
-		ChangePassword.fillFirstNewPassword(goodNewPassword);
-		ChangePassword.fillSecondNewPassword(newPasswordWithError);
-		ChangePassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
-		ChangePassword.clickOnSubmitButton();
-		ChangePassword.assertMustChange(false);
-		ChangePassword.assertError(true);
-		ChangePassword.assertSuccess(false);
-		
-		// Geef goed huidig wachtwoord, goede TOTP code en 2 keer een juist nieuw wachtwoord
-		ChangePassword.fillCurrentPassword(user.getPassword());
-		ChangePassword.fillFirstNewPassword(goodNewPassword);
-		ChangePassword.fillSecondNewPassword(goodNewPassword);
-		ChangePassword.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
+	private void mandatoryChangePasswordOfUser(User changeForUser, String password) {
+		ChangePassword.assertMustChange(true);
+		ChangePassword.fillCurrentPassword(changeForUser.getPassword());
+		ChangePassword.fillFirstNewPassword(password);
+		ChangePassword.fillSecondNewPassword(password);
 		ChangePassword.clickOnSubmitButton();
 		ChangePassword.assertMustChange(false);
 		ChangePassword.assertError(false);
 		ChangePassword.assertSuccess(true);
 		
-		user.setPassword(goodNewPassword);
+		changeForUser.setPassword(password);
 		
 		ChangePassword.clickOnBackToIndexButton();
 	}
-	
-	private void loguitEnLogin() {
-		Menu.selectCurrentUserAndClickOnUitloggen();
-		Menu.clickOnLogin();
-		Login.fillCredentials(user.getUsername(), user.getPassword());
-		Login.clickOnLoginButton();
-		Login.assertError(true);
-		
-		Login.fillCredentials(user.getUsername(), "JustSomePassword@12");
-		Login.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
-		Login.clickOnLoginButton();
-		Login.assertError(true);
-		
-		Login.fillCredentials(user.getUsername(), user.getPassword());
-		Login.fill2FACode(Interactions.calculate2FACode(user.getFaSecret()));
-		Login.clickOnLoginButton();
-		Login.assertError(false);
-		Login.assertSuccessfulLogin();
-	}
-	
 }

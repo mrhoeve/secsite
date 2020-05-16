@@ -23,6 +23,15 @@ public class Webdriver {
 	public static Webdriver getInstance() {
 		if(single_instance == null) {
 			single_instance = new Webdriver();
+			
+			// Voeg een hook toe zodat we de driver kunnen sluiten bij het exiten
+			Runtime.getRuntime().addShutdownHook(new Thread()
+			{
+				public void run()
+				{
+					Webdriver.getInstance().getDriver().quit();
+				}
+			});
 		}
 		return single_instance;
 	}
@@ -63,4 +72,6 @@ public class Webdriver {
 		options.addArguments("--whitelisted-ips=''"); //https://stackoverflow.com/questions/40305669/selenium-webdriver-3-0-1-chromedriver-exe-2-25-whitelisted-ips/44629135
 		return options;
 	}
+	
+	
 }

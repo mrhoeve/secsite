@@ -40,7 +40,7 @@ if (!$freshStart && !$error) {
                         <div class="card-body">
                             <?php if (!$freshStart && !$error && !$techError) { ?>
                                 <p id="success">Account is aangemaakt.</p>
-                                <a href="<?php echo LEVEL ?>selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
+                                <a href="<?php echo LEVEL ?>\admin\selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                     index</a>
                             <?php } else {
                                 // We have a fresh start, or we've got an error

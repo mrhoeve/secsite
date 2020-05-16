@@ -46,6 +46,21 @@ public class Interactions {
 		}
 	}
 	
+	public static void setCheckboxToState(String xPath, Boolean desiredState) {
+		if(getCurrentStateOfCheckbox(xPath) != desiredState) {
+			performClick(xPath);
+		}
+	}
+	
+	public static Boolean getCurrentStateOfCheckbox(String xPath) {
+		try {
+			return Webdriver.getInstance().getDriver().findElement(By.xpath(xPath)).isSelected();
+		} catch (NoSuchElementException e) {
+			fail();
+			return false;
+		}
+	}
+	
 	public static String calculate2FACode(String faSecret) {
 		try {
 			long currentBucket = Math.floorDiv((System.currentTimeMillis() / 1000L), 30);

@@ -92,7 +92,7 @@ if (!$freshStart && !$error) {
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart && !$error) { ?>
-                            <p class="alert alert-success">Account is opgeslagen.</p>
+                            <p class="alert alert-success" id="success">Account is opgeslagen.</p>
                         <?php }
                         // We have a fresh start, or we've got an error
                         if ($error) { ?>
@@ -170,9 +170,9 @@ if (!$freshStart && !$error) {
                                 <label class="form-check-label" for="archivedAccount">Account gearchiveerd</label>
                             </div>
                             <input type="submit" value="Sla het gewijzigde account op"
-                                   class="btn btn-primary btn-block">
+                                   class="btn btn-primary btn-block" id="saveuser">
                             <?php if (!$freshStart && !$error) { ?>
-                                <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar
+                                <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                     overzicht</a>
                             <?php } ?>
                         </form>
