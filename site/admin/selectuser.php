@@ -97,7 +97,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] === false || !userHas
                             <tr>
                                 <?php if ($user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) { ?>
                                     <td class="text-center"><?php if ($selUser->isDisabled()) echo "<i class=\"fas fa-ban\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"Gebruiker is gearchiveerd\"></i>"; else echo " "; ?></td><?php } ?>
-                                <td><?php echo $selUser->get_username() ?></td>
+                                <td><span id="user-<?php echo $selUser->get_username() ?>"><?php echo $selUser->get_username() ?></span></td>
                                 <?php if ($user->hasPermission(PERMISSION_READ_ACCOUNT)) { ?>
                                     <td><?php echo $selUser->get_firstName() ?></td>
                                     <td><?php echo $selUser->get_email() ?></td>

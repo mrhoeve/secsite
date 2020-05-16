@@ -4,9 +4,8 @@ import nl.windesheim.somesite.database.Database;
 import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.interactions.Interactions;
 import nl.windesheim.somesite.useractions.Menu;
-import nl.windesheim.somesite.useractions.admin.AdminCreateNewUser;
-import nl.windesheim.somesite.useractions.admin.EditUser;
-import nl.windesheim.somesite.useractions.admin.SelectUser;
+import nl.windesheim.somesite.useractions.admin.*;
+import nl.windesheim.somesite.useractions.user.ArchivedUser;
 import nl.windesheim.somesite.useractions.user.ChangePassword;
 import nl.windesheim.somesite.useractions.user.Enable2FA;
 import nl.windesheim.somesite.useractions.user.Login;
@@ -80,7 +79,9 @@ public class AdministratorActionsEditArchiveDeleteTest {
 		AdminCreateNewUser.assertSuccess(true);
 		
 		AdminCreateNewUser.clickOnBackToIndexButton();
+
 		regularUser.setPassword(normallyNotStrongEnoughPassword);
+		Assertions.assertTrue(SelectUser.isUserPresent(regularUser.getUsername()));
 	}
 	
 	@Order(4)
@@ -106,9 +107,11 @@ public class AdministratorActionsEditArchiveDeleteTest {
 		Menu.selectAccountsAndClickOnBeheerAccounts();
 		SelectUser.clickOnEditUserButton(regularUser.getUsername());
 		EditUser.setChangePwONL(true);
+		EditUser.setChangeArchivedAccount(false);
 		EditUser.clickOnSave();
 		EditUser.assertSuccess(true);
 		Assertions.assertTrue(EditUser.getCurrentStateOfChangePwONL());
+		Assertions.assertFalse(EditUser.getCurrentStateOfArchivedAccount());
 		
 		Menu.selectCurrentUserAndClickOnUitloggen();
 		
@@ -117,6 +120,43 @@ public class AdministratorActionsEditArchiveDeleteTest {
 		
 		Menu.selectCurrentUserAndClickOnUitloggen();
 		loginAsUser(adminUser, true);
+	}
+	
+	@Order(6)
+	@Test
+	public void archiveUser() {
+		Menu.selectAccountsAndClickOnBeheerAccounts();
+		SelectUser.clickOnArchiveUserButton(regularUser.getUsername());
+		Assertions.assertFalse(ArchiveUser.getCurrentStateOfArchivedAccount());
+		ArchiveUser.setChangeArchivedAccount(true);
+		ArchiveUser.clickOnSave();
+		Assertions.assertTrue(ArchiveUser.getCurrentStateOfArchivedAccount());
+		ArchiveUser.clickOnBackToSelect();
+		
+		SelectUser.clickOnEditUserButton(regularUser.getUsername());
+		Assertions.assertTrue(EditUser.getCurrentStateOfArchivedAccount());
+		
+		Menu.selectCurrentUserAndClickOnUitloggen();
+		loginAsUser(regularUser, false);
+		
+		ArchivedUser.assertIsArchived(true);
+		ArchivedUser.clickOnBackToIndex();
+		
+		loginAsUser(adminUser, true);
+	}
+	
+	@Order(7)
+	@Test
+	public void removeUser() {
+		Menu.selectAccountsAndClickOnBeheerAccounts();
+		Assertions.assertTrue(SelectUser.isUserPresent(regularUser.getUsername()));
+		
+		SelectUser.clickOnRemoveUserButton(regularUser.getUsername());
+		RemoveUser.clickOnRemoveUser();
+		RemoveUser.assertSuccess(true);
+		RemoveUser.clickOnBackToSelect();
+		
+		Assertions.assertFalse(SelectUser.isUserPresent(regularUser.getUsername()));
 	}
 	
 	private void loginAsUser(User logInAsUser, Boolean assertSuccess) {

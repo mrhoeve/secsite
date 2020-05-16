@@ -8,11 +8,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SelectUser {
 	
+	public static Boolean isUserPresent(String username) {
+		return Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"user-" + username + "\"]")).size() > 0;
+	}
+	
 	public static void clickOnEditUserButton(String username) {
 		Interactions.performClick("//*[@id=\"edituser-" + username + "\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
+	public static void clickOnArchiveUserButton(String username) {
+		Interactions.performClick("//*[@id=\"archiveuser-" + username + "\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
+	public static void clickOnRemoveUserButton(String username) {
+		Interactions.performClick("//*[@id=\"deleteuser-" + username + "\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
 	
 	public static void assertAvailableColumns(Boolean archivedSymbolExpected, Boolean nameExpected, Boolean emailExpected, Boolean roleExpected, Boolean editAccountExpected, Boolean resetPasswordExpected, Boolean resetTotpExpected, Boolean archivedUserExpected, Boolean removeUserExpected) {
 		assertThat(Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"columnArchivedUser\"]")).size() > 0).isEqualTo(archivedSymbolExpected);

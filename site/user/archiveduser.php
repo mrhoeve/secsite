@@ -13,8 +13,8 @@ include_once(dirname(__FILE__) . "/../includes/header.php");
                             <h4>Account gearchiveerd</h4>
                         </div>
                         <div class="card-body">
-                            <p class="alert alert-danger">Uw account is gearchiveerd.<br/>Neem contact op met de beheerder...</p>
-                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2">Terug naar
+                            <p class="alert alert-danger" id="messageAccountArchived">Uw account is gearchiveerd.<br/>Neem contact op met de beheerder...</p>
+                            <a href="<?php echo LEVEL ?>index.php" class="btn btn-success btn-block mt-2" id="backToIndex">Terug naar
                                 index</a>
                         </div>
                     </div>

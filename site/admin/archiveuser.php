@@ -31,7 +31,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart) { ?>
-                            <p>Gebruiker <?php echo $retrievedUser->get_username() ?> opgeslagen.</p>
+                            <p id="success">Gebruiker <?php echo $retrievedUser->get_username() ?> opgeslagen.</p>
                         <?php } ?>
                             <form action="archiveuser.php" method="post">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
@@ -49,8 +49,8 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                                     } ?>>
                                     <label class="form-check-label" for="archivedAccount">Account gearchiveerd</label>
                                 </div>
-                                <input type="submit" name="submit" value="Opslaan" class="btn btn-warning btn-block">
-                                <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar overzicht</a>
+                                <input type="submit" name="submit" value="Opslaan" class="btn btn-warning btn-block" id="saveuser">
+                                <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="backToSelect">Terug naar overzicht</a>
                             </form>
                     </div>
                 </div>

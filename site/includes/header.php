@@ -36,6 +36,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     if($user->isDisabled()) {
         $log->log(LogLevel::NOTICE, "User " . $user->get_username() . " logged in, but is disabled... Logging out");
         UserHelper::deleteSession();
+        $user = new User();
         $location = 'Location: ' . LEVEL . 'user/archiveduser.php';
         header($location);
     }

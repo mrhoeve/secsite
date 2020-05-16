@@ -29,8 +29,8 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart) { ?>
-                            <p>Gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
-                            <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar overzicht</a>
+                            <p id="success">Gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
+                            <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar overzicht</a>
                         <?php } else { ?>
                             <form action="deleteuser.php" method="post">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
@@ -44,7 +44,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                                 <p class="alert alert-danger">Door hieronder op de knop 'Verwijder gebruiker' te klikken verwijdert u de hierboven genoemde gebruiker.
                                 Deze actie is niet ongedaan te maken.<br/><br/>
                                 Let op, de gebruiker wordt zonder verdere vraag verwijderd!</p>
-                                <input type="submit" name="submit" value="Verwijder gebruiker" class="btn btn-danger btn-block">
+                                <input type="submit" name="submit" value="Verwijder gebruiker" class="btn btn-danger btn-block" id="removeUser">
                                 <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar overzicht</a>
                             </form> <?php } ?>
                     </div>
