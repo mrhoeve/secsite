@@ -6,10 +6,10 @@ import org.openqa.selenium.By;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemoveUser {
+public class ResetTOTPSecret {
 	
-	public static void clickOnRemoveUser() {
-		Interactions.performClick("//*[@id=\"removeUser\"]");
+	public static void clickOnRemove2FA() {
+		Interactions.performClick("//*[@id=\"confirmremoval2fa\"]");
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
@@ -19,9 +19,7 @@ public class RemoveUser {
 	}
 	
 	public static void assertSuccess(Boolean expected) {
-		Boolean bvalue = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"success\"]")).size() > 0;
-		assertThat(bvalue).isEqualTo(expected);
-		bvalue = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"successbutton\"]")).size() > 0;
-		assertThat(bvalue).isEqualTo(expected);
+		assertThat(Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"success\"]")).size() > 0).isEqualTo(expected);
+		assertThat(Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"successbutton\"]")).size() > 0).isEqualTo(expected);
 	}
 }

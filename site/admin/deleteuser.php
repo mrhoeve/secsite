@@ -10,7 +10,7 @@ if(!$user->hasPermission(PERMISSION_DELETE_ACCOUNT)) {
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder gebruiker');
 
 if (!$freshStart) {
-    $log->log(LogLevel::INFO, 'Removing user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'User ' . $user->get_username() . ' removed user ' . $retrievedUser->get_username());
     UserHelper::removeUser($retrievedUser);
 }
 

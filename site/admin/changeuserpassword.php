@@ -14,7 +14,7 @@ $passwordToUse = isset($_POST['password']) ? trim($_POST['password']) : "";
 $curchangepwonl = $freshStart ? $retrievedUser->mustChangePasswordOnNextLogon() : isset($_POST['changepwonl']);
 
 if (!empty($passwordToUse)) {
-    $log->log(LogLevel::INFO, 'Password changed of user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'Password changed of user ' . $retrievedUser->get_username() . ' by user ' . $user->get_username());
     $savedUser = UserHelper::saveUser($retrievedUser, $passwordToUse, true, $curchangepwonl);
     if ($savedUser->isEmpty()) {
         $techError = true;
@@ -41,8 +41,8 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart && !$error) { ?>
-                            <p>Wachtwoord gewijzigd.</p>
-                            <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar
+                            <p id="success">Wachtwoord gewijzigd.</p>
+                            <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                 overzicht</a>
                         <?php } else {
                             // We have a fresh start, or we've got an error
@@ -71,7 +71,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                                     <label class="form-check-label" for="changepwonl">Wijzig wachtwoord bij volgende
                                         aanmelding</label>
                                 </div>
-                                <input type="submit" value="Sla wachtwoord op" class="btn btn-primary btn-block">
+                                <input type="submit" value="Sla wachtwoord op" class="btn btn-primary btn-block" id="saveuser">
                             </form> <?php } ?>
                     </div>
                 </div>

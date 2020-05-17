@@ -48,7 +48,6 @@ public class ChangePassword {
 		assertThat(bvalue).isEqualTo(expected);
 		bvalue = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"successbutton\"]")).size() > 0;
 		assertThat(bvalue).isEqualTo(expected);
-		
 	}
 	
 }

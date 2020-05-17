@@ -157,6 +157,8 @@ public class AdministratorActionsEditArchiveDeleteTest {
 		RemoveUser.clickOnBackToSelect();
 		
 		Assertions.assertFalse(SelectUser.isUserPresent(regularUser.getUsername()));
+		
+		Menu.selectCurrentUserAndClickOnUitloggen();
 	}
 	
 	private void loginAsUser(User logInAsUser, Boolean assertSuccess) {
@@ -168,17 +170,17 @@ public class AdministratorActionsEditArchiveDeleteTest {
 		if (assertSuccess) Login.assertSuccessfulLogin();
 	}
 	
-	private void mandatoryChangePasswordOfUser(User changeForUser, String password) {
+	private void mandatoryChangePasswordOfUser(User changeForUser, String newPassword) {
 		ChangePassword.assertMustChange(true);
 		ChangePassword.fillCurrentPassword(changeForUser.getPassword());
-		ChangePassword.fillFirstNewPassword(password);
-		ChangePassword.fillSecondNewPassword(password);
+		ChangePassword.fillFirstNewPassword(newPassword);
+		ChangePassword.fillSecondNewPassword(newPassword);
 		ChangePassword.clickOnSubmitButton();
 		ChangePassword.assertMustChange(false);
 		ChangePassword.assertError(false);
 		ChangePassword.assertSuccess(true);
 		
-		changeForUser.setPassword(password);
+		changeForUser.setPassword(newPassword);
 		
 		ChangePassword.clickOnBackToIndexButton();
 	}

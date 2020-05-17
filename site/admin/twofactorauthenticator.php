@@ -10,7 +10,7 @@ if(!$user->hasPermission(PERMISSION_RESET_TOTP)) {
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder 2FA');
 
 if (!$freshStart) {
-    $log->log(LogLevel::INFO, 'Removing 2FA of user ' . $retrievedUser->get_username());
+    $log->log(LogLevel::INFO, 'Removing 2FA of user ' . $retrievedUser->get_username() . ' by user ' . $user->get_username());
     UserHelper::save2FASecret($retrievedUser, null);
 }
 
@@ -29,8 +29,8 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                     </div>
                     <div class="card-body">
                         <?php if (!$freshStart) { ?>
-                            <p>2FA van gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
-                            <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar overzicht</a>
+                            <p id="success">2FA van gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
+                            <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar overzicht</a>
                         <?php } else { ?>
                             <form action="twofactorauthenticator.php" method="post">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
@@ -47,7 +47,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                                 meer actief heeft die is gekoppeld aan zijn profiel, en na validatie dat de gebruiker echt
                                 de gebruiker is.<br/><br/>
                                 Let op, 2FA wordt zonder verdere vraag verwijderd!</p>
-                                <input type="submit" name="submit" value="Verwijder 2FA" class="btn btn-danger btn-block">
+                                <input type="submit" name="submit" value="Verwijder 2FA" class="btn btn-danger btn-block" id="confirmremoval2fa">
                                 <a href="selectuser.php" class="btn btn-success btn-block mt-2">Terug naar overzicht</a>
                             </form> <?php } ?>
                     </div>

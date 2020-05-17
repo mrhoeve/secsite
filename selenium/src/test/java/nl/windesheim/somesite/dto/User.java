@@ -1,10 +1,5 @@
 package nl.windesheim.somesite.dto;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
-import java.util.Base64;
-
 public class User {
 	private String username;
 	private String password;

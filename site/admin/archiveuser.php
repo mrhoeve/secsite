@@ -12,7 +12,7 @@ $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Opslaan');
 $curdisabled = $freshStart ? $retrievedUser->isDisabled() : isset($_POST['archivedAccount']);
 
 if (!$freshStart) {
-    $log->log(LogLevel::INFO, 'User ' . $retrievedUser->get_username() . $curdisabled ? ' is archived' : ' is not archived');
+    $log->log(LogLevel::INFO, 'User ' . $retrievedUser->get_username() . $curdisabled ? ' is archived' : ' is not archived' . 'by user ' . $user->get_username());
     UserHelper::editUserArchiveStatus($retrievedUser, $curdisabled);
 }
 

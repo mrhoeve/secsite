@@ -24,7 +24,7 @@ $techError = false;
 
 if (!$freshStart && !$error) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
-    $log->log(LogLevel::INFO, 'New user created: ' . $createUser->toString());
+    $log->log(LogLevel::INFO, 'New user ' . $createUser->toString() . '  created by user ' . $user->get_username());
     $newUser = UserHelper::saveUser($createUser, $password, false);
     if ($newUser->isEmpty()) $techError = true;
 } ?>

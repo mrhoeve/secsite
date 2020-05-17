@@ -27,7 +27,7 @@ if (isset($_POST['username'])) {
         $facode = $_POST['2facode'];
         $ga = new PHPGangsta_GoogleAuthenticator();
         if ($ga->verifyCode($fasecret, $facode, 1)) {
-            $log->log(LogLevel::NOTICE, "2FA enabled and secret saved");
+            $log->log(LogLevel::NOTICE, "2FA enabled and secret saved for user " . $curUser->get_username());
             UserHelper::save2FASecret($authenticatedUser, $fasecret);
         } else {
             $error = true;

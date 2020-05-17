@@ -38,21 +38,6 @@ public class UseraccountActionsTest {
 		Database.getInstance().resetSmtpPort();
 	}
 	
-//	@Test
-//	@Ignore
-//	public void testAlleUserAccountActions() {
-//		createUser();
-//		login();
-//		enable2FATest();
-//		changePassword();
-//		loguitEnLogin();
-//		loguitEnResetLostPasswordWith2FA();
-//		remove2FATest();
-//		loguitEnResetLostPasswordWithout2FA();
-//
-//		Database.getInstance().resetSmtpPort();
-//	}
-	
 	@Order(1)
 	@Test
 	public void createUser() {

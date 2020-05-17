@@ -30,5 +30,4 @@ public class ArchiveUser {
 		Boolean bvalue = Webdriver.getInstance().getDriver().findElements(By.xpath("//*[@id=\"success\"]")).size() > 0;
 		assertThat(bvalue).isEqualTo(expected);
 	}
-	
 }

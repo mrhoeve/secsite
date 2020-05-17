@@ -34,7 +34,6 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
 
             try {
                 //Server settings
-//                $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      // Enable verbose debug output
                 $mail->isSMTP();                                            // Send using SMTP
                 $mail->Host = 'localhost';                    // Set the SMTP server to send through
                 $mail->SMTPAuth = false;                                   // Enable SMTP authentication
@@ -44,9 +43,6 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                 //Recipients
                 $mail->setFrom('noreply@somesite.local', 'Mailer');
                 $mail->addAddress($user->get_email(), $user->get_firstName());     // Add a recipient
-//                $mail->addReplyTo('info@example.com', 'Information');
-//                $mail->addCC('cc@example.com');
-//                $mail->addBCC('bcc@example.com');
 
                 // Content
                 $mail->isHTML(true);                                  // Set email format to HTML
@@ -55,7 +51,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                 $mail->AltBody = "Ga naar http://localhost/secsite/security/site/user/resetpassword.php, vul uw gebruikersnaam in en gebruik de herstelcode {$checkcode}";
 
                 $mail->send();
-                echo 'Message has been sent';
+                $log->log(LogLevel::NOTICE, "Password reset mail sent for user " . $user->get_username());
             } catch (Exception $e) {
                 $log->log(LogLevel::CRITICAL, "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
                 $error = true;

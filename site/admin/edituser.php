@@ -71,6 +71,7 @@ $passwordToUse = isset($_POST['password']) ? trim($_POST['password']) : "";
 
 if (!$freshStart && !$error) {
     $userToSave = new User($retrievedUser->get_username(), $curfirstname, $curemail, $retrievedUser->has2fa(), $currole, array(), $curchangepwonl, $curdisabled);
+    $log->log(LogLevel::NOTICE, 'User ' . $user->get_username() . ' edited user ' . $userToSave->get_username());
     $savedUser = UserHelper::saveUser($userToSave, $passwordToUse);
     if (!$savedUser->isEmpty()) {
         $retrievedUser = UserHelper::loadUser($userToSave->get_username());

@@ -1,6 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/../includes/definitions.php");
 include_once(dirname(__FILE__) . "/../includes/user.php");
+use Psr\Log\LogLevel;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     header('Location: ..\index.php');
@@ -14,7 +15,12 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
         $freshStart = false;
         $facode = isset($_POST['2facode']) ? $_POST['2facode'] : "";
         $user = UserHelper::authenticateAndLoginUser($_POST['username'], $_POST['password'], $facode);
-        if ($user->isEmpty()) $error = true;
+        if ($user->isEmpty()) {
+            $log->log(LogLevel::ALERT, 'User ' . $_POST['username'] . ' tried to log in, but the attempt was unsuccessful.');
+            $error = true;
+        } else {
+            $log->log(LogLevel::NOTICE, 'User ' . $user->get_username() . ' logged in.');
+        }
     }
 
     setLevelToRoot("..");

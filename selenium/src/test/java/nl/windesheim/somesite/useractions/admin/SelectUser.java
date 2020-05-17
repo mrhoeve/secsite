@@ -17,6 +17,16 @@ public class SelectUser {
 		Webdriver.getInstance().waitForPageLoad();
 	}
 	
+	public static void clickOnChangePasswordButton(String username) {
+		Interactions.performClick("//*[@id=\"changepassword-" + username + "\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
+	public static void clickOnReset2FAButton(String username) {
+		Interactions.performClick("//*[@id=\"reset2fa-" + username + "\"]");
+		Webdriver.getInstance().waitForPageLoad();
+	}
+	
 	public static void clickOnArchiveUserButton(String username) {
 		Interactions.performClick("//*[@id=\"archiveuser-" + username + "\"]");
 		Webdriver.getInstance().waitForPageLoad();

@@ -1,5 +1,6 @@
 package nl.windesheim.somesite.database;
 
+import nl.windesheim.somesite.dto.User;
 import nl.windesheim.somesite.settings.Settings;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -34,6 +35,25 @@ public class Database {
 			e.printStackTrace();
 			fail();
 		}
+	}
+	
+	public Boolean createUser(User user) {
+		try (Connection connection = DriverManager.getConnection(DbUrl, Settings.MYSQL_USER, Settings.MYSQL_PASS);
+		     PreparedStatement statement = connection.prepareStatement("INSERT INTO user (username, password, fasecret, firstname, email, changepwonl, disabled) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+			statement.setString(1, user.getUsername());
+			statement.setString(2, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+			statement.setString(3, user.getFaSecret());
+			statement.setString(4, "Name of " + user.getUsername());
+			statement.setString(5, user.getUsername()+"@mail.local");
+			statement.setInt(6, 0);
+			statement.setInt(7, 0);
+			statement.execute();
+			return statement.getUpdateCount() == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		}
+		return false;
 	}
 	
 	public Boolean setPasswordForUser(String username, String password) {
@@ -90,6 +110,21 @@ public class Database {
 		}
 		return false;
 	}
+	
+	public Boolean set2FASecret(String username, String secret) {
+		try (Connection connection = DriverManager.getConnection(DbUrl, Settings.MYSQL_USER, Settings.MYSQL_PASS);
+		     PreparedStatement statement = connection.prepareStatement("UPDATE user SET fasecret = ? WHERE username = ?")) {
+			statement.setString(1, secret);
+			statement.setString(2, username);
+			statement.execute();
+			return statement.getUpdateCount() == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			fail();
+		}
+		return false;
+	}
+	
 	
 	public Boolean setSmtpPort(String port) {
 		getCurrentSmtpPort();

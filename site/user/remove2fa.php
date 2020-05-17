@@ -23,7 +23,7 @@ if (isset($_POST['username'])) {
     // Make sure we have the correct user
     $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn($_POST['username'], $_POST['password'], $_POST['2facode']);
     if (!$authenticatedUser->isEmpty() && $curUser->get_username() === $authenticatedUser->get_username()) {
-        $log->log(LogLevel::INFO, "Removing 2FA");
+        $log->log(LogLevel::INFO, "Removing 2FA of user " . $authenticatedUser->get_username());
         UserHelper::save2FASecret($authenticatedUser, null);
     } else {
         $error = true;

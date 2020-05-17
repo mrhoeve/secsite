@@ -45,5 +45,4 @@ public class AdminCreateNewUser {
 		assertThat(bvalue).isEqualTo(expected);
 		
 	}
-	
 }
