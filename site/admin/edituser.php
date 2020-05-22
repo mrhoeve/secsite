@@ -40,12 +40,12 @@ function loadRoles()
 }
 
 $freshStart = !isset($_POST['name']);
-$error = false;
+$error = $CSRFTokenerror;
 $saveerror = false;
 $roles = loadRoles();
 
 if (isset($_POST['name'])) {
-    $curfirstname = trim($_POST['name']);
+    $curfirstname = htmlspecialchars(filter_var(strip_tags(trim($_POST['name']))));
     if (empty($curfirstname)) {
         $error = true;
         $curfirstname = $retrievedUser->get_firstName();
@@ -55,7 +55,7 @@ if (isset($_POST['name'])) {
 }
 
 if (isset($_POST['email'])) {
-    $curemail = trim($_POST['email']);
+    $curemail = htmlspecialchars(filter_var(strip_tags(trim($_POST['email'])), 274));
     if ($curemail != $retrievedUser->get_email() && !UserHelper::isEmailAddressValid($curemail)) {
         $error = true;
         $curemail = $retrievedUser->get_email();
@@ -64,10 +64,10 @@ if (isset($_POST['email'])) {
     $curemail = $retrievedUser->get_email();
 }
 
-$currole = isset($_POST['rol']) ? $_POST['rol'] : $retrievedUser->get_role();
+$currole = isset($_POST['rol']) ? htmlspecialchars(filter_var(strip_tags($_POST['rol']))) : $retrievedUser->get_role();
 $curchangepwonl = $freshStart ? $retrievedUser->mustChangePasswordOnNextLogon() : isset($_POST['changepwonl']);
 $curdisabled = $freshStart ? $retrievedUser->isDisabled() : isset($_POST['archivedAccount']);
-$passwordToUse = isset($_POST['password']) ? trim($_POST['password']) : "";
+$passwordToUse = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags(trim($_POST['password'])))) : "";
 
 if (!$freshStart && !$error) {
     $userToSave = new User($retrievedUser->get_username(), $curfirstname, $curemail, $retrievedUser->has2fa(), $currole, array(), $curchangepwonl, $curdisabled);
@@ -116,6 +116,7 @@ if (!$freshStart && !$error) {
                         <?php }
                         ?>
                         <form action="edituser.php" method="post">
+                            <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                             <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                             <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                             <div class="form-group">

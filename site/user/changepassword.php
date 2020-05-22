@@ -13,11 +13,11 @@ if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin'] === true) {
 
 $freshStart = !(isset($_POST['username']) || isset($_POST['currentpassword']) || isset($_POST['2facode']) || isset($_POST['password']) || isset($_POST['confirmpassword']));
 
-$username = isset($_POST['username']) ? $_POST['username'] : '';
-$currentpassword = isset($_POST['currentpassword']) ? $_POST['currentpassword'] : '';
-$facode = isset($_POST['2facode']) ? $_POST['2facode'] : '';
-$passone = isset($_POST['password']) ? $_POST['password'] : '';
-$passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
+$username = isset($_POST['username']) ? htmlspecialchars(filter_var(strip_tags($_POST['username']))) : '';
+$currentpassword = isset($_POST['currentpassword']) ? htmlspecialchars(filter_var(strip_tags($_POST['currentpassword']))) : '';
+$facode = isset($_POST['2facode']) ? htmlspecialchars(filter_var(strip_tags($_POST['2facode']))) : '';
+$passone = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags($_POST['password']))) : '';
+$passtwo = isset($_POST['confirmpassword']) ? htmlspecialchars(filter_var(strip_tags($_POST['confirmpassword']))) : '';
 $error = false;
 
 if(!$freshStart) {
@@ -28,6 +28,12 @@ if(!$freshStart) {
 
     $error = $userError || !$passwordsValid;
     $techError = false;
+}
+
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $error = true;
+    }
 }
 
 if (!$freshStart && !$error) {
@@ -65,6 +71,7 @@ if (!$freshStart && !$error) {
                                 <?php } ?>
                                 <form action="changepassword.php" method="post">
                                     <input type="hidden" name="username" value="<?php echo $user->get_username() ?>">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" id="username" value="<?php echo $user->get_username() ?>"

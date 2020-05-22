@@ -11,7 +11,7 @@ if(!$user->hasPermission(PERMISSION_ARCHIVE_ACCOUNT)) {
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Opslaan');
 $curdisabled = $freshStart ? $retrievedUser->isDisabled() : isset($_POST['archivedAccount']);
 
-if (!$freshStart) {
+if (!$freshStart && !$CSRFTokenerror) {
     $log->log(LogLevel::INFO, 'User ' . $retrievedUser->get_username() . $curdisabled ? ' is archived' : ' is not archived' . 'by user ' . $user->get_username());
     UserHelper::editUserArchiveStatus($retrievedUser, $curdisabled);
 }
@@ -34,6 +34,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                             <p id="success">Gebruiker <?php echo $retrievedUser->get_username() ?> opgeslagen.</p>
                         <?php } ?>
                             <form action="archiveuser.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                                 <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                 <div class="form-group">

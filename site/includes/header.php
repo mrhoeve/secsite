@@ -9,7 +9,6 @@ if(!defined('LEVEL')) {
 include_once(dirname(__FILE__) . "/logger.php");
 include_once(dirname(__FILE__) . "/dbconnection.php");
 include_once(dirname(__FILE__) . "/user.php");
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -10,6 +10,13 @@ if (!empty($encodedUser) && !empty($checkcode)) {
     $retrievedUser = UserHelper::checkCodeAndGetUser($encodedUser, $checkcode);
 }
 
-if($user->isEmpty() || $retrievedUser->isEmpty()) {
+if ($user->isEmpty() || $retrievedUser->isEmpty()) {
     header('Location: ..\index.php');
+}
+
+$CSRFTokenerror = false;
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $CSRFTokenerror = true;
+    }
 }

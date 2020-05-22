@@ -17,11 +17,17 @@ if ($curUser->isEmpty() || !$curUser->has2fa()) {
 $freshStart = true;
 $error = false;
 
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $error = true;
+    }
+}
+
 // If we come via Post, then we'll have a username to process (hidden field in form).
-if (isset($_POST['username'])) {
+if ((isset($_POST['username'])) && !$error) {
     $freshStart = false;
     // Make sure we have the correct user
-    $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn($_POST['username'], $_POST['password'], $_POST['2facode']);
+    $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn(htmlspecialchars(filter_var(strip_tags($_POST['username']))), htmlspecialchars(filter_var(strip_tags($_POST['password']))), htmlspecialchars(filter_var(strip_tags($_POST['2facode']))));
     if (!$authenticatedUser->isEmpty() && $curUser->get_username() === $authenticatedUser->get_username()) {
         $log->log(LogLevel::INFO, "Removing 2FA of user " . $authenticatedUser->get_username());
         UserHelper::save2FASecret($authenticatedUser, null);
@@ -50,6 +56,7 @@ if (isset($_POST['username'])) {
                                     is mislukt.</p>
                             <?php } ?>
                             <form action="remove2fa.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="username" value="<?php echo $curUser->get_username() ?>">
                                 <div class="form-group">
                                     <label for="username">Gebruikersnaam</label>

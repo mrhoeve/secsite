@@ -16,14 +16,20 @@ $getCode = isset($_GET['code']) ? $_GET['code'] : "";
 
 $freshStart = !(isset($_POST['username']) || isset($_POST['code']) || isset($_POST['2facode']) || isset($_POST['password']) || isset($_POST['confirmpassword']));
 
-$username = isset($_POST['username']) ? $_POST['username'] : $getUsername;
+$username = isset($_POST['username']) ? htmlspecialchars(filter_var(strip_tags($_POST['username']))) : $getUsername;
 $code = isset($_POST['code']) ? $_POST['code'] : $getCode;
 $facode = isset($_POST['2facode']) ? $_POST['2facode'] : '';
-$passone = isset($_POST['password']) ? $_POST['password'] : '';
-$passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
-$error = true;
+$passone = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags($_POST['password']))) : '';
+$passtwo = isset($_POST['confirmpassword']) ? htmlspecialchars(filter_var(strip_tags($_POST['confirmpassword']))) : '';
+$error = false;
 
-if (!$freshStart) {
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $error = true;
+    }
+}
+
+if (!$freshStart && !$error) {
     $checkUser = UserHelper::loadUserWith2FACheck($username, $facode);
     if ($checkUser->isEmpty()) {
         $error = true;
@@ -81,6 +87,7 @@ include_once(dirname(__FILE__) . "/../includes/header.php");
                                         verplicht wijzigen voordat u verder kunt.</p>
                                 <?php } ?>
                                 <form action="resetpassword.php" method="post">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" name="username" id="username"

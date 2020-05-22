@@ -9,7 +9,7 @@ if(!$user->hasPermission(PERMISSION_RESET_TOTP)) {
 
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder 2FA');
 
-if (!$freshStart) {
+if (!$freshStart && !$CSRFTokenerror) {
     $log->log(LogLevel::INFO, 'Removing 2FA of user ' . $retrievedUser->get_username() . ' by user ' . $user->get_username());
     UserHelper::save2FASecret($retrievedUser, null);
 }
@@ -28,11 +28,12 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                         <h4>2FA verwijderen</h4>
                     </div>
                     <div class="card-body">
-                        <?php if (!$freshStart) { ?>
+                        <?php if (!$freshStart && !$CSRFTokenerror) { ?>
                             <p id="success">2FA van gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
                             <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar overzicht</a>
                         <?php } else { ?>
                             <form action="twofactorauthenticator.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                                 <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                 <div class="form-group">

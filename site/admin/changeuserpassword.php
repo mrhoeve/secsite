@@ -8,12 +8,12 @@ if(!$user->hasPermission(PERMISSION_RESET_PASSWORD)) {
 }
 
 $freshStart = !isset($_POST['password']);
-$error = false;
+$error = $CSRFTokenerror;
 
-$passwordToUse = isset($_POST['password']) ? trim($_POST['password']) : "";
+$passwordToUse = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags(trim($_POST['password'])))) : "";
 $curchangepwonl = $freshStart ? $retrievedUser->mustChangePasswordOnNextLogon() : isset($_POST['changepwonl']);
 
-if (!empty($passwordToUse)) {
+if (!empty($passwordToUse) && !$error) {
     $log->log(LogLevel::INFO, 'Password changed of user ' . $retrievedUser->get_username() . ' by user ' . $user->get_username());
     $savedUser = UserHelper::saveUser($retrievedUser, $passwordToUse, true, $curchangepwonl);
     if ($savedUser->isEmpty()) {
@@ -50,6 +50,7 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                                 <p class="text-danger">Er is een fout opgetreden.</p>
                             <?php } ?>
                             <form action="changeuserpassword.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                                 <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                 <div class="form-group">

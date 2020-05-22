@@ -19,15 +19,21 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     $freshStart = true;
     $error = false;
 
+    if (!empty($_POST['CSRFToken'])) {
+        if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+            $error = true;
+        }
+    }
+
     $user = new User();
-    if (isset($_POST['username'])) {
+    if (isset($_POST['username']) && !$error) {
         $freshStart = false;
 
         $smtpPortSetting = getSettingValue("smtp_port");
         $smtpPort = empty($smtpPortSetting) ? 1025 : (int) $smtpPortSetting;
         $log->log(LogLevel::INFO, "Using SMTP port " . $smtpPort);
 
-        $user = UserHelper::loadUser($_POST['username']);
+        $user = UserHelper::loadUser(htmlspecialchars(filter_var(strip_tags($_POST['username']))));
         if(!$user->isEmpty()) {
             $checkcode = UserHelper::calculateCheckcode(serialize($user));
             $mail = new PHPMailer(true);
@@ -82,6 +88,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                                     <p class="text-danger" id="error">Gebruikersnaam, wachtwoord of code onjuist.</p>
                                 <?php } ?>
                                 <form action="requestresetpassword.php" method="post">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="alert alert-light">
                                         Geef uw gebruikersnaam in en klik op 'Reset wachtwoord'.
                                     </div>

@@ -17,11 +17,17 @@ if ($curUser->isEmpty() || $curUser->has2fa()) {
 $freshStart = true;
 $error = false;
 
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $error = true;
+    }
+}
+
 // If we come via Post, then we'll have a username to process (hidden field in form).
-if (isset($_POST['username'])) {
+if (isset($_POST['username']) && !$error) {
     $freshStart = false;
     // Make sure we have the correct user
-    $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn($_POST['username'], $_POST['password'], '');
+    $authenticatedUser = UserHelper::authenticateUserWithoutLoggingIn(htmlspecialchars(filter_var(strip_tags($_POST['username']))), htmlspecialchars(filter_var(strip_tags($_POST['password']))), '');
     if (!empty($authenticatedUser->get_username()) && $curUser->get_username() === $authenticatedUser->get_username()) {
         $fasecret = $_POST['2fasecret'];
         $facode = $_POST['2facode'];
@@ -67,6 +73,7 @@ if ($freshStart || $error) {
                                     is mislukt.</p>
                             <?php } ?>
                             <form action="setup2fa.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="2fasecret" value="<?php echo $secret ?>">
                                 <input type="hidden" name="username" value="<?php echo $curUser->get_username() ?>">
                                 <div class="form-group">

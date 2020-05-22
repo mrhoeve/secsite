@@ -12,11 +12,11 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
 
 $freshStart = !(isset($_POST['username']) || isset($_POST['firstname']) || isset($_POST['emailaddress']) || isset($_POST['password']) || isset($_POST['confirmpassword']));
 
-$username = isset($_POST['username']) ? $_POST['username'] : '';
-$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
-$emailaddress = isset($_POST['emailaddress']) ? $_POST['emailaddress'] : '';
-$passone = isset($_POST['password']) ? $_POST['password'] : '';
-$passtwo = isset($_POST['confirmpassword']) ? $_POST['confirmpassword'] : '';
+$username = isset($_POST['username']) ? htmlspecialchars(filter_var(strip_tags($_POST['username']))) : '';
+$firstname = isset($_POST['firstname']) ? htmlspecialchars(filter_var(strip_tags($_POST['firstname']))) : '';
+$emailaddress = isset($_POST['emailaddress']) ? htmlspecialchars(filter_var(strip_tags($_POST['emailaddress'], 274))) : '';
+$passone = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags($_POST['password']))) : '';
+$passtwo = isset($_POST['confirmpassword']) ? htmlspecialchars(filter_var(strip_tags($_POST['confirmpassword']))) : '';
 
 $emailaddressValid = UserHelper::isEmailAddressValid($emailaddress);
 $passwordsValid = UserHelper::arePasswordsValid($passone, $passtwo);
@@ -24,6 +24,12 @@ $usernameValid = UserHelper::isUsernameValid($username);
 
 $error = !($usernameValid && $passwordsValid && $emailaddressValid && !empty($firstname));
 $techError = false;
+
+if (!empty($_POST['CSRFToken'])) {
+    if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+        $error = true;
+    }
+}
 
 if (!$freshStart && !$error) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
@@ -65,6 +71,7 @@ if (!$freshStart && !$error) {
                                         Probeer het later nogmaals, of neem contact op met de beheerder.</p>
                                 <?php } ?>
                                 <form action="register.php" method="post">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" name="username" id="username" value="<?php echo $username ?>"

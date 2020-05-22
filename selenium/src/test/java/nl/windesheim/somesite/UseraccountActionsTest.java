@@ -239,7 +239,7 @@ public class UseraccountActionsTest {
 	public void loguitEnResetLostPasswordWith2FA() {
 		Interactions.removeAllEmail(maildevURL);
 		
-		String goodNewPassword = "Az09!@#$%&*()<?>";
+		String goodNewPassword = "Az09!@#$%&*()?><";
 		String newPasswordWithError = "Az091@#$%&*()<?>";
 		String notStrongEnoughPassword = "Az!@#$%&*()";
 		
@@ -343,7 +343,7 @@ public class UseraccountActionsTest {
 	public void loguitEnResetLostPasswordWithout2FA() {
 		Interactions.removeAllEmail(maildevURL);
 		
-		String goodNewPassword = "Az09!@#$%&*(<?>)";
+		String goodNewPassword = "Az09!@#$%&*(?><)";
 		String newPasswordWithError = "Az091@#$%&*(<?>)";
 		String notStrongEnoughPassword = "Az!@#$%&*()";
 		

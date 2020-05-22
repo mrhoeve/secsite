@@ -9,7 +9,7 @@ if(!$user->hasPermission(PERMISSION_DELETE_ACCOUNT)) {
 
 $freshStart = !(isset($_POST['submit']) && $_POST['submit'] == 'Verwijder gebruiker');
 
-if (!$freshStart) {
+if (!$freshStart && !$CSRFTokenerror) {
     $log->log(LogLevel::INFO, 'User ' . $user->get_username() . ' removed user ' . $retrievedUser->get_username());
     UserHelper::removeUser($retrievedUser);
 }
@@ -28,11 +28,12 @@ $checkcode = UserHelper::calculateCheckcode($encodedUser);
                         <h4>Gebruiker verwijderen</h4>
                     </div>
                     <div class="card-body">
-                        <?php if (!$freshStart) { ?>
+                        <?php if (!$freshStart && !$CSRFTokenerror) { ?>
                             <p id="success">Gebruiker <?php echo $retrievedUser->get_username() ?> verwijderd.</p>
                             <a href="selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar overzicht</a>
                         <?php } else { ?>
                             <form action="deleteuser.php" method="post">
+                                <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                 <input type="hidden" name="seluser" value="<?php echo $encodedUser; ?>">
                                 <input type="hidden" name="checkcode" value="<?php echo $checkcode; ?>">
                                 <div class="form-group">

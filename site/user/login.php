@@ -10,13 +10,19 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
     $freshStart = true;
     $error = false;
 
+    if (!empty($_POST['CSRFToken'])) {
+        if (!hash_equals($_SESSION['token'], $_POST['CSRFToken'])) {
+            $error = true;
+        }
+    }
+
     $user = new User();
-    if (isset($_POST['username']) || isset($_POST['password'])) {
+    if ((isset($_POST['username']) || isset($_POST['password'])) && !$error) {
         $freshStart = false;
-        $facode = isset($_POST['2facode']) ? $_POST['2facode'] : "";
-        $user = UserHelper::authenticateAndLoginUser($_POST['username'], $_POST['password'], $facode);
+        $facode = isset($_POST['2facode']) ? htmlspecialchars(filter_var(strip_tags($_POST['2facode']))) : "";
+        $user = UserHelper::authenticateAndLoginUser(htmlspecialchars(filter_var(strip_tags($_POST['username']))), htmlspecialchars(filter_var(strip_tags($_POST['password']))), $facode);
         if ($user->isEmpty()) {
-            $log->log(LogLevel::ALERT, 'User ' . $_POST['username'] . ' tried to log in, but the attempt was unsuccessful.');
+            $log->log(LogLevel::ALERT, 'User ' . htmlspecialchars(filter_var(strip_tags($_POST['username']))) . ' tried to log in, but the attempt was unsuccessful.');
             $error = true;
         } else {
             $log->log(LogLevel::NOTICE, 'User ' . $user->get_username() . ' logged in.');
@@ -46,6 +52,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === TRUE) {
                                     <p class="text-danger" id="error">Gebruikersnaam, wachtwoord of code onjuist.</p>
                                 <?php } ?>
                                 <form action="login.php" method="post">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" name="username" id="username" placeholder="Gebruikersnaam"

@@ -1,5 +1,14 @@
 <?php
+session_set_cookie_params(30*60, "/", null, false, true);
 session_start();
+
+if (empty($_SESSION['token'])) {
+    $_SESSION['token'] = bin2hex(random_bytes(32));
+}
+$CSRFToken = $_SESSION['token'];
+
+header("X-Frame-Options: SAMEORIGIN");
+header('X-Content-Type-Options: nosniff');
 
 include_once(dirname(__FILE__) . "/logger.php");
 use Psr\Log\LogLevel;

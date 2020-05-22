@@ -11,10 +11,10 @@ if(!$user->hasPermission(PERMISSION_CREATE_ACCOUNT)) {
 
 $freshStart = !(isset($_POST['username']) || isset($_POST['firstname']) || isset($_POST['emailaddress']) || isset($_POST['password']));
 
-$username = isset($_POST['username']) ? $_POST['username'] : '';
-$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
-$emailaddress = isset($_POST['emailaddress']) ? $_POST['emailaddress'] : '';
-$password = isset($_POST['password']) ? $_POST['password'] : '';
+$username = isset($_POST['username']) ? htmlspecialchars(filter_var(strip_tags($_POST['username']))) : '';
+$firstname = isset($_POST['firstname']) ? htmlspecialchars(filter_var(strip_tags($_POST['firstname']))) : '';
+$emailaddress = isset($_POST['emailaddress']) ? htmlspecialchars(filter_var(strip_tags($_POST['emailaddress']), 274)) : '';
+$password = isset($_POST['password']) ? htmlspecialchars(filter_var(strip_tags($_POST['password']))) : '';
 
 $emailaddressValid = UserHelper::isEmailAddressValid($emailaddress);
 $usernameValid = UserHelper::isUsernameValid($username);
@@ -22,7 +22,7 @@ $usernameValid = UserHelper::isUsernameValid($username);
 $error = !($usernameValid && $emailaddressValid && !empty($firstname));
 $techError = false;
 
-if (!$freshStart && !$error) {
+if (!$freshStart && !$error && !$CSRFTokenerror) {
     $createUser = new User($username, $firstname, $emailaddress, false, null, array(), false, false, null);
     $log->log(LogLevel::INFO, 'New user ' . $createUser->toString() . '  created by user ' . $user->get_username());
     $newUser = UserHelper::saveUser($createUser, $password, false);
@@ -38,13 +38,13 @@ if (!$freshStart && !$error) {
                             <h4>Account aanmaken</h4>
                         </div>
                         <div class="card-body">
-                            <?php if (!$freshStart && !$error && !$techError) { ?>
+                            <?php if (!$freshStart && !$error && !$techError && !$CSRFTokenerror) { ?>
                                 <p id="success">Account is aangemaakt.</p>
                                 <a href="<?php echo LEVEL ?>\admin\selectuser.php" class="btn btn-success btn-block mt-2" id="successbutton">Terug naar
                                     index</a>
                             <?php } else {
                                 // We have a fresh start, or we've got an error
-                                if (!$freshStart && $error) { ?>
+                                if (!$freshStart && ($error || $CSRFTokenerror)) { ?>
                                     <div class="alert alert-danger" id="error">
                                         <p>Het account kan niet worden aangemaakt vanwege (één van) deze
                                             redenen:</p>
@@ -61,6 +61,7 @@ if (!$freshStart && !$error) {
                                         Probeer het later nogmaals, of neem contact op met de beheerder.</p>
                                 <?php } ?>
                                 <form action="createnewuser.php" method="post">
+                                    <input type="hidden" name="CSRFToken" value="<?php echo $CSRFToken ?>">
                                     <div class="form-group">
                                         <label for="username">Gebruikersnaam</label>
                                         <input type="text" name="username" id="username" value="<?php echo $username ?>"
